@@ -2,6 +2,7 @@ import 'package:findoutmole/screen/FootBar.dart';
 import 'package:flutter/material.dart';
 import 'package:findoutmole/screen/menu_screen/Perfil.dart'; // Pantalla de perfil
 import 'package:findoutmole/screen/menu_screen/Contacto.dart'; // Pantalla de contacto
+import 'package:findoutmole/screen/menu_screen/Archivos.dart'; // Importa la página Archivos
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -45,7 +46,12 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        print('Agregar Archivos clicked!');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArchivosScreen(), // Navega a la página Archivos
+                          ),
+                        );
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +127,7 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Botón 4: Contacto// Botón 4: Contacto
+                    // Botón 4: Contacto
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(
