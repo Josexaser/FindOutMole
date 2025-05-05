@@ -34,14 +34,31 @@ class BotonAcceder extends StatelessWidget {
 
             try {
               // Intenta iniciar sesión con Firebase
-              await FirebaseAuth.instance.signInWithEmailAndPassword(
+              UserCredential userCredential =
+                  await FirebaseAuth.instance.signInWithEmailAndPassword(
                 email: user,
                 password: password,
               );
 
-              // Mostrar mensaje de bienvenida
-              _mostrarDialogoBienvenida(context);
+              // Obtener el token del usuario autenticado
+              String? token = await userCredential.user?.getIdToken();
+
+              if (token != null) {
+                // Navegar a HomePage y pasar el token
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(token: token),
+                  ),
+                );
+              } else {
+                // Manejar el caso en que no se pueda obtener el token
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error al obtener el token')),
+                );
+              }
             } on FirebaseAuthException catch (e) {
+              // Si hay un error, muestra un mensaje
               String errorMessage = 'Error al iniciar sesión';
 
               if (e.code == 'user-not-found') {
@@ -50,57 +67,26 @@ class BotonAcceder extends StatelessWidget {
                 errorMessage = 'Contraseña incorrecta';
               }
 
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(errorMessage)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(errorMessage)),
+              );
+            } catch (e) {
+              // Manejar otros errores inesperados
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: $e')),
+              );
             }
           },
           child: const Text(
             'Acceder',
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.white, // Color del texto del botón
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
       ),
-    );
-  }
-
-  // 👇 Función privada debajo de la clase, fuera del build
-  void _mostrarDialogoBienvenida(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // No permitir cerrar tocando fuera
-      builder: (context) {
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.of(context).pop(); // Cierra el diálogo
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        });
-
-        return AlertDialog(
-          backgroundColor: Colors.black.withOpacity(0.7),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          content: const Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Text(
-              '¡Bienvenido a Find Out Mole!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
