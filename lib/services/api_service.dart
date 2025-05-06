@@ -6,12 +6,13 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
-// Comentar flutter_image_compress para depurar
-// import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../models/prediction.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000';
+  static const String baseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: kIsWeb ? 'http://127.0.0.1:8000' : 'http://10.0.2.2:8000',
+  );
 
   Future<Prediction> predict(dynamic imageData, String token) async {
     try {
@@ -19,6 +20,7 @@ class ApiService {
         throw Exception('No se proporcionó ninguna imagen');
       }
 
+      print('Enviando solicitud a: $baseUrl/predict');
       var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/predict'));
       request.headers['Authorization'] = 'Bearer $token';
 
@@ -33,7 +35,6 @@ class ApiService {
         String extension = path.extension(filename).toLowerCase();
         String mimeType = _getMimeType(extension);
 
-        // Sin compresión para depurar
         request.files.add(http.MultipartFile.fromBytes(
           'file',
           bytes,
@@ -53,6 +54,7 @@ class ApiService {
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 
+      print('Respuesta del servidor: ${response.statusCode} - $responseBody');
       if (response.statusCode == 200) {
         return Prediction.fromJson(jsonDecode(responseBody));
       } else {
@@ -66,11 +68,13 @@ class ApiService {
 
   Future<List<Prediction>> getDiagnostics(String token) async {
     try {
+      print('Enviando solicitud a: $baseUrl/diagnostics');
       final response = await http.get(
         Uri.parse('$baseUrl/diagnostics'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
+      print('Respuesta del servidor: ${response.statusCode} - ${response.body}');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final diagnostics = (data['diagnostics'] as List)
@@ -83,6 +87,24 @@ class ApiService {
     } catch (e) {
       print('Error en ApiService.getDiagnostics: $e');
       throw Exception('Error al obtener diagnósticos: $e');
+    }
+  }
+
+  Future<void> deleteDiagnostic(String diagnosticId, String token) async {
+    try {
+      print('Enviando solicitud DELETE a: $baseUrl/diagnostics/$diagnosticId');
+      final response = await http.delete(
+        Uri.parse('$baseUrl/diagnostics/$diagnosticId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print('Respuesta del servidor: ${response.statusCode} - ${response.body}');
+      if (response.statusCode != 200) {
+        throw Exception('Error: ${jsonDecode(response.body)['detail']}');
+      }
+    } catch (e) {
+      print('Error en ApiService.deleteDiagnostic: $e');
+      throw Exception('Error al eliminar diagnóstico: $e');
     }
   }
 

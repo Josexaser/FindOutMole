@@ -30,7 +30,7 @@ app.add_middleware(
 
 # Montar directorio estático para servir imágenes
 UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)  # Crear directorio si no existe
+UPLOAD_DIR.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/")
@@ -74,7 +74,7 @@ async def predict(request: Request, file: UploadFile = File(...), user: dict = D
         # Guardar la imagen localmente
         logger.info("Guardando imagen localmente")
         user_dir = UPLOAD_DIR / "diagnostics" / user_id
-        user_dir.mkdir(parents=True, exist_ok=True)  # Crear directorio para el usuario
+        user_dir.mkdir(parents=True, exist_ok=True)
         image_path = user_dir / f"{diagnostic_id}.jpg"
         with open(image_path, "wb") as f:
             f.write(contents)
@@ -92,7 +92,8 @@ async def predict(request: Request, file: UploadFile = File(...), user: dict = D
             "type": prediction_type,
             "probabilities": probabilities,
             "image_url": image_url,
-            "timestamp": datetime.utcnow()
+            "timestamp": datetime.utcnow(),
+            "diagnostic_id": diagnostic_id,  # Incluir diagnostic_id
         }
         db.collection("users").document(user_id).collection("diagnostics").document(diagnostic_id).set(diagnostic_data)
         logger.info("Diagnóstico guardado en Firestore")
@@ -112,9 +113,40 @@ async def get_diagnostics(user: dict = Depends(verify_token)):
     try:
         user_id = user.get('uid')
         docs = db.collection("users").document(user_id).collection("diagnostics").stream()
-        diagnostics = [doc.to_dict() for doc in docs]
+        diagnostics = [
+            {**doc.to_dict(), "diagnostic_id": doc.id} for doc in docs
+        ]
         logger.info(f"Devolviendo {len(diagnostics)} diagnósticos")
         return {"diagnostics": diagnostics}
     except Exception as e:
         logger.error(f"Error obteniendo diagnósticos: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving diagnostics: {str(e)}")
+
+@app.delete("/diagnostics/{diagnostic_id}")
+async def delete_diagnostic(diagnostic_id: str, user: dict = Depends(verify_token)):
+    logger.info(f"Recibida solicitud DELETE /diagnostics/{diagnostic_id} para usuario: {user.get('uid')}")
+    try:
+        user_id = user.get('uid')
+        # Verificar que el diagnóstico existe
+        doc_ref = db.collection("users").document(user_id).collection("diagnostics").document(diagnostic_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            logger.error(f"Diagnóstico {diagnostic_id} no encontrado")
+            raise HTTPException(status_code=404, detail="Diagnostic not found")
+
+        # Eliminar la imagen local
+        image_path = UPLOAD_DIR / "diagnostics" / user_id / f"{diagnostic_id}.jpg"
+        if image_path.exists():
+            image_path.unlink()
+            logger.info(f"Imagen eliminada: {image_path}")
+        else:
+            logger.warning(f"Imagen no encontrada: {image_path}")
+
+        # Eliminar el documento de Firestore
+        doc_ref.delete()
+        logger.info(f"Diagnóstico {diagnostic_id} eliminado de Firestore")
+
+        return {"message": "Diagnostic deleted successfully"}
+    except Exception as e:
+        logger.error(f"Error eliminando diagnóstico: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error deleting diagnostic: {str(e)}")
