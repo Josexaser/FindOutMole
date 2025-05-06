@@ -26,50 +26,70 @@ class _PredictionScreenState extends State<PredictionScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImageFromGallery() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      if (kIsWeb) {
-        final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          _imageFile = pickedFile;
-          _imageBytes = bytes;
-          _imageFileMobile = null;
-          _prediction = null;
-          _errorMessage = null;
-        });
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        print('Imagen seleccionada: ${pickedFile.path}');
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            _imageFile = pickedFile;
+            _imageBytes = bytes;
+            _imageFileMobile = null;
+            _prediction = null;
+            _errorMessage = null;
+          });
+        } else {
+          setState(() {
+            _imageFile = pickedFile;
+            _imageFileMobile = File(pickedFile.path);
+            _imageBytes = null;
+            _prediction = null;
+            _errorMessage = null;
+          });
+        }
       } else {
-        setState(() {
-          _imageFile = pickedFile;
-          _imageFileMobile = File(pickedFile.path);
-          _imageBytes = null;
-          _prediction = null;
-          _errorMessage = null;
-        });
+        print('Selección de imagen cancelada');
       }
+    } catch (e) {
+      print('Error en _pickImageFromGallery: $e');
+      setState(() {
+        _errorMessage = 'Error al seleccionar la imagen: $e';
+      });
     }
   }
 
   Future<void> _takePhoto() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      if (kIsWeb) {
-        final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          _imageFile = pickedFile;
-          _imageBytes = bytes;
-          _imageFileMobile = null;
-          _prediction = null;
-          _errorMessage = null;
-        });
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        print('Foto tomada: ${pickedFile.path}');
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            _imageFile = pickedFile;
+            _imageBytes = bytes;
+            _imageFileMobile = null;
+            _prediction = null;
+            _errorMessage = null;
+          });
+        } else {
+          setState(() {
+            _imageFile = pickedFile;
+            _imageFileMobile = File(pickedFile.path);
+            _imageBytes = null;
+            _prediction = null;
+            _errorMessage = null;
+          });
+        }
       } else {
-        setState(() {
-          _imageFile = pickedFile;
-          _imageFileMobile = File(pickedFile.path);
-          _imageBytes = null;
-          _prediction = null;
-          _errorMessage = null;
-        });
+        print('Captura de foto cancelada');
       }
+    } catch (e) {
+      print('Error en _takePhoto: $e');
+      setState(() {
+        _errorMessage = 'Error al tomar la foto: $e';
+      });
     }
   }
 
@@ -81,6 +101,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
       return;
     }
 
+    print('Iniciando predicción con imagen: ${_imageFile!.path}');
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -93,6 +114,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      print('Error en _predictImage: $e');
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
@@ -153,7 +175,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                     ),
             ),
             const SizedBox(height: 20),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -188,7 +209,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
               ],
             ),
             const SizedBox(height: 20),
-
             ElevatedButton(
               onPressed: _isLoading ? null : _predictImage,
               style: ElevatedButton.styleFrom(
@@ -210,7 +230,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                     ),
             ),
             const SizedBox(height: 20),
-
             if (_errorMessage != null)
               Container(
                 padding: const EdgeInsets.all(12),
@@ -227,7 +246,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-
             if (_prediction != null) ...[
               const Divider(height: 30),
               Text(

@@ -3,46 +3,50 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart' as http_parser; // Importar http_parser para MediaType
+import 'package:http_parser/http_parser.dart' as http_parser;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
+// Comentar flutter_image_compress para depurar
+// import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../models/prediction.dart';
 
 class ApiService {
   static const String baseUrl = 'http://127.0.0.1:8000';
-  //Para web, conectandose desde el navegador en local 'http://127.0.0.1:8000'; // 
-  // En navegador se corre con: flutter run -d chrome --web-port=8080 --verbose
-  // Para emulador: static const String baseUrl = 'http://10.0.2.2:8000';
-  // Para dispositivo físico: usa la IP de tu máquina, ej: 'http://192.168.1.X:8000'
 
   Future<Prediction> predict(dynamic imageData, String token) async {
     try {
+      if (imageData == null) {
+        throw Exception('No se proporcionó ninguna imagen');
+      }
+
       var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/predict'));
       request.headers['Authorization'] = 'Bearer $token';
 
+      XFile imageFile = imageData as XFile;
+
       if (kIsWeb) {
-        // En Flutter Web, imageData es un XFile
-        final xFile = imageData as XFile;
-        final bytes = await xFile.readAsBytes();
-        // Obtener el nombre del archivo original si está disponible, o usar un nombre genérico
-        String filename = xFile.name.isNotEmpty ? xFile.name : 'uploaded_image.jpg';
-        // Determinar el content_type basado en la extensión del archivo
+        final bytes = await imageFile.readAsBytes();
+        if (bytes == null || bytes.isEmpty) {
+          throw Exception('No se pudieron leer los bytes de la imagen');
+        }
+        String filename = imageFile.name.isNotEmpty ? imageFile.name : 'uploaded_image.jpg';
         String extension = path.extension(filename).toLowerCase();
         String mimeType = _getMimeType(extension);
 
+        // Sin compresión para depurar
         request.files.add(http.MultipartFile.fromBytes(
           'file',
           bytes,
           filename: filename,
-          contentType: http_parser.MediaType('image', mimeType), // Usar http_parser.MediaType
+          contentType: http_parser.MediaType('image', mimeType),
         ));
       } else {
-        // En móvil, imageData es un XFile que convertimos a File
-        final xFile = imageData as XFile;
-        final file = File(xFile.path);
+        if (!File(imageFile.path).existsSync()) {
+          throw Exception('El archivo de imagen no existe: ${imageFile.path}');
+        }
         request.files.add(await http.MultipartFile.fromPath(
           'file',
-          file.path,
+          imageFile.path,
         ));
       }
 
@@ -55,11 +59,33 @@ class ApiService {
         throw Exception(jsonDecode(responseBody)['detail']);
       }
     } catch (e) {
+      print('Error en ApiService.predict: $e');
       throw Exception('Error al realizar la predicción: $e');
     }
   }
 
-  // Método auxiliar para determinar el MIME type basado en la extensión
+  Future<List<Prediction>> getDiagnostics(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/diagnostics'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final diagnostics = (data['diagnostics'] as List)
+            .map((item) => Prediction.fromJson(item))
+            .toList();
+        return diagnostics;
+      } else {
+        throw Exception('Error: ${jsonDecode(response.body)['detail']}');
+      }
+    } catch (e) {
+      print('Error en ApiService.getDiagnostics: $e');
+      throw Exception('Error al obtener diagnósticos: $e');
+    }
+  }
+
   String _getMimeType(String extension) {
     switch (extension) {
       case '.jpg':
@@ -72,7 +98,7 @@ class ApiService {
       case '.bmp':
         return 'bmp';
       default:
-        return 'jpeg'; // Por defecto, asumimos JPEG
+        return 'jpeg';
     }
   }
 }

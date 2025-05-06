@@ -3,6 +3,7 @@ import 'package:findoutmole/screen/menu_screen/Perfil.dart';
 import 'package:findoutmole/screen/FootBar.dart';
 import 'package:findoutmole/screen/menu_screen/Contacto.dart';
 import 'package:findoutmole/screen/prediction_screen.dart';
+import 'package:findoutmole/screen/menu_screen/ConsultasScreen.dart';
 
 class HomePage extends StatelessWidget {
   final String token;
@@ -98,7 +99,12 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        print('Consultas clicked!');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ConsultasScreen(token: token),
+                          ),
+                        );
                       },
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,

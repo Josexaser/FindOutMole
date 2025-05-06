@@ -1,11 +1,21 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
 from io import BytesIO
 from models.prediction import PredictionResponse
 from services.ml_model import predict_image
-from services.auth import verify_token
+from services.auth import verify_token, db
+import uuid
+from datetime import datetime
+import logging
+import os
+from pathlib import Path
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="FindOutMole API")
 
@@ -18,6 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Montar directorio estático para servir imágenes
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)  # Crear directorio si no existe
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to FindOutMole API"}
@@ -28,19 +43,78 @@ async def options_predict():
 
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: Request, file: UploadFile = File(...), user: dict = Depends(verify_token)):
-    print(f"Content-Type del archivo: {file.content_type}")  # Añadir log para depurar
-    #if not file.content_type.startswith("image/"):
-        #raise HTTPException(status_code=400, detail="File must be an image")
-    
+    logger.info(f"Recibida solicitud POST /predict para usuario: {user.get('uid')}")
+    logger.info(f"Content-Type del archivo: {file.content_type}")
+
+    if not file.content_type.startswith("image/"):
+        logger.error("Archivo no es una imagen")
+        raise HTTPException(status_code=400, detail="File must be an image")
+
     try:
+        # Leer la imagen
+        logger.info("Leyendo contenido del archivo")
         contents = await file.read()
+        if not contents:
+            logger.error("El archivo está vacío")
+            raise HTTPException(status_code=400, detail="Empty file")
+
         image = Image.open(BytesIO(contents))
+        logger.info("Imagen cargada correctamente")
+
+        # Hacer la predicción
+        logger.info("Realizando predicción")
         prediction, prediction_type, probabilities = predict_image(image)
-        
+        logger.info(f"Predicción completada: {prediction}")
+
+        # Generar un ID único para el diagnóstico
+        diagnostic_id = str(uuid.uuid4())
+        user_id = user.get('uid')
+        logger.info(f"Generado diagnostic_id: {diagnostic_id} para user_id: {user_id}")
+
+        # Guardar la imagen localmente
+        logger.info("Guardando imagen localmente")
+        user_dir = UPLOAD_DIR / "diagnostics" / user_id
+        user_dir.mkdir(parents=True, exist_ok=True)  # Crear directorio para el usuario
+        image_path = user_dir / f"{diagnostic_id}.jpg"
+        with open(image_path, "wb") as f:
+            f.write(contents)
+        logger.info(f"Imagen guardada en: {image_path}")
+
+        # Generar URL para la imagen
+        base_url = str(request.base_url).rstrip("/")
+        image_url = f"{base_url}/uploads/diagnostics/{user_id}/{diagnostic_id}.jpg"
+        logger.info(f"URL de la imagen: {image_url}")
+
+        # Guardar el diagnóstico en Firestore
+        logger.info("Guardando diagnóstico en Firestore")
+        diagnostic_data = {
+            "prediction": prediction,
+            "type": prediction_type,
+            "probabilities": probabilities,
+            "image_url": image_url,
+            "timestamp": datetime.utcnow()
+        }
+        db.collection("users").document(user_id).collection("diagnostics").document(diagnostic_id).set(diagnostic_data)
+        logger.info("Diagnóstico guardado en Firestore")
+
         return PredictionResponse(
             prediction=prediction,
             type=prediction_type,
             probabilities=probabilities
         )
     except Exception as e:
+        logger.error(f"Error procesando la solicitud: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+
+@app.get("/diagnostics")
+async def get_diagnostics(user: dict = Depends(verify_token)):
+    logger.info(f"Recibida solicitud GET /diagnostics para usuario: {user.get('uid')}")
+    try:
+        user_id = user.get('uid')
+        docs = db.collection("users").document(user_id).collection("diagnostics").stream()
+        diagnostics = [doc.to_dict() for doc in docs]
+        logger.info(f"Devolviendo {len(diagnostics)} diagnósticos")
+        return {"diagnostics": diagnostics}
+    except Exception as e:
+        logger.error(f"Error obteniendo diagnósticos: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error retrieving diagnostics: {str(e)}")
