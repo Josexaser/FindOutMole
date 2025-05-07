@@ -12,6 +12,10 @@ class ApiService {
   static const String baseUrl = String.fromEnvironment(
     'API_URL',
     defaultValue: kIsWeb ? 'http://127.0.0.1:8000' : 'http://10.0.2.2:8000',
+  //Para web, conectandose desde el navegador en local 'http://127.0.0.1:8000'; // 
+  // En navegador se corre con: flutter run -d chrome --web-port=8080 --verbose
+  // Para emulador: static const String baseUrl = 'http://10.0.2.2:8000';
+  // Para dispositivo físico: usa la IP de tu máquina, ej: 'http://192.168.1.X:8000'
   );
 
   Future<Prediction> predict(dynamic imageData, String token) async {
