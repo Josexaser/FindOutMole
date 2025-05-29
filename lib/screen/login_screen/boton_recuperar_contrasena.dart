@@ -6,18 +6,24 @@ class BotonRecuperarContrasena extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 50),
       child: SizedBox(
-        width: double.infinity, // El botón ocupa todo el ancho disponible
+        width: double.infinity,
         height: 50,
         child: TextButton(
-          style: estiloBoton(), //Estilo Boton separado
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
           onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ScreenPassword()),
-          );
-        }, //Accion boton separado
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ScreenPassword()),
+            );
+          },
           child: const Text(
             'Recuperar contraseña',
             style: TextStyle(
@@ -29,22 +35,5 @@ class BotonRecuperarContrasena extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // Estilo boton
-  ButtonStyle estiloBoton() {
-    return ButtonStyle(
-      backgroundColor: WidgetStateProperty.all<Color>(
-        Colors.transparent,
-      ), // Fondo transparente
-      overlayColor: WidgetStateProperty.all<Color>(
-        // ignore: deprecated_member_use
-        Colors.white.withOpacity(0.1), // Animación de onda al pulsar
-      ),
-
-      padding: WidgetStateProperty.all<EdgeInsets>(
-        const EdgeInsets.all(0),
-      ), // Quita el relleno interno
-    ); // Close ButtonStyle constructor
   }
 }

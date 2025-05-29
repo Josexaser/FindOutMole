@@ -6,7 +6,7 @@ import 'package:findoutmole/screen/register_screen/contraseña.dart';
 import 'package:findoutmole/screen/register_screen/email.dart';
 import 'package:findoutmole/screen/register_screen/registerButtom.dart';
 import 'package:findoutmole/screen/register_screen/textoInicial.dart';
-import 'package:findoutmole/screen/FootBar.dart'; // Importa el pie de página
+import 'package:findoutmole/screen/FootBar.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -16,11 +16,10 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // Controladores para los campos de texto
   final TextEditingController passController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController confirmPassController = TextEditingController();
-  bool aceptoCondiciones = false; // Estado para los términos y condiciones
+  bool aceptoCondiciones = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +27,9 @@ class _RegisterPageState extends State<RegisterPage> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      bottomNavigationBar: const FooterBar(),
       body: Stack(
         children: [
           // Imagen de fondo
@@ -35,64 +37,55 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Image.asset('assets/images/2.png', fit: BoxFit.cover),
           ),
           // Contenido principal
-          Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.all(screenWidth * 0.05),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: screenHeight * 0.05),
-                    Image.asset('assets/images/lupaconojo.png', height: screenHeight * 0.15),
-                    SizedBox(height: screenHeight * 0.03),
-                    const TextoInicial(),
-                    SizedBox(height: screenHeight * 0.03),
-                    // Campo de correo electrónico
-                    EmailField(controller: emailController),
-                    SizedBox(height: screenHeight * 0.03),
-                    // Campo de contraseña
-                    PasswordField(controller: passController),
-                    SizedBox(height: screenHeight * 0.03),
-                    // Campo de confirmación de contraseña
-                    ConfirmPasswordField(
-                    controller: confirmPassController,
-                    passwordController: passController, // Añade el controlador de la contraseña
-),
-                    SizedBox(height: screenHeight * 0.03),
-                    // Checkbox de términos y condiciones
-                    Condiciones(
-                      onChanged: (valor) {
-                        setState(() {
-                          aceptoCondiciones = valor;
-                        });
-                      },
-                    ),
-                    SizedBox(height: screenHeight * 0.03),
-                    // Botón de registro
-                    RegisterButton(
-                      passwordController: passController,
-                      emailController: emailController,
-                      confirmPasswordController: confirmPassController,
-                      enabled: aceptoCondiciones,
-                    ),
-                    SizedBox(height: screenHeight * 0.03),
-                    // Texto para usuarios con cuenta existente
-                    const CuentaExiste(),
-                  ],
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.all(screenWidth * 0.05),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const TextoInicial(),
+                      SizedBox(height: screenHeight * 0.03),
+                      EmailField(controller: emailController),
+                      SizedBox(height: screenHeight * 0.03),
+                      PasswordField(controller: passController),
+                      SizedBox(height: screenHeight * 0.03),
+                      ConfirmPasswordField(
+                        controller: confirmPassController,
+                        passwordController: passController,
+                      ),
+                      SizedBox(height: screenHeight * 0.03),
+                      Condiciones(
+                        onChanged: (valor) {
+                          setState(() {
+                            aceptoCondiciones = valor;
+                          });
+                        },
+                      ),
+                      SizedBox(height: screenHeight * 0.03),
+                      RegisterButton(
+                        passwordController: passController,
+                        emailController: emailController,
+                        confirmPasswordController: confirmPassController,
+                        enabled: aceptoCondiciones,
+                      ),
+                      SizedBox(height: screenHeight * 0.03),
+                      const CuentaExiste(),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: FooterBar(),
     );
   }
 
   @override
   void dispose() {
-    // Libera los controladores al destruir el widget
     passController.dispose();
     emailController.dispose();
     confirmPassController.dispose();

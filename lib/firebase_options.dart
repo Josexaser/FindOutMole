@@ -83,5 +83,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'findoutmole.firebasestorage.app',
     iosBundleId: 'com.example.proyectofindoutmole',
   );
-
 }

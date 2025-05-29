@@ -3,353 +3,256 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:findoutmole/utils/image_selector.dart';
 import '../../services/api_service.dart';
 import '../../models/prediction.dart';
 
 class PredictionScreen extends StatefulWidget {
   final String token;
 
-  const PredictionScreen({required this.token, super.key});
+  const PredictionScreen({super.key, required this.token});
 
   @override
-  _PredictionScreenState createState() => _PredictionScreenState();
+  State<PredictionScreen> createState() => _PredictionScreenState();
 }
 
 class _PredictionScreenState extends State<PredictionScreen> {
-  XFile? _imageFile;
   Uint8List? _imageBytes;
-  File? _imageFileMobile;
+  File? _imageFile;
   Prediction? _prediction;
   bool _isLoading = false;
   String? _errorMessage;
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> _requestPermissions() async {
-    final cameraStatus = await Permission.camera.request();
-    final photosStatus = await Permission.photos.request();
-
-    if (!cameraStatus.isGranted || !photosStatus.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permisos requeridos no concedidos.')),
-      );
-    }
-  }
 
   Future<void> _pickImageFromGallery() async {
-    // Solicita permisos
-    final cameraStatus = await Permission.camera.request();
-    final photosStatus = await Permission.photos.request();
-
-    // Verifica si los permisos fueron concedidos
-    if (!cameraStatus.isGranted || !photosStatus.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permisos requeridos no concedidos.')),
-      );
-      return; // Salir del método si los permisos no son concedidos
-    }
-
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        print('Imagen seleccionada: ${pickedFile.path}');
-        if (kIsWeb) {
-          final bytes = await pickedFile.readAsBytes();
-          setState(() {
-            _imageFile = pickedFile;
-            _imageBytes = bytes;
-            _imageFileMobile = null;
-            _prediction = null;
-            _errorMessage = null;
-          });
-        } else {
-          setState(() {
-            _imageFile = pickedFile;
-            _imageFileMobile = File(pickedFile.path);
-            _imageBytes = null;
-            _prediction = null;
-            _errorMessage = null;
-          });
-        }
-      } else {
-        print('Selección de imagen cancelada');
-      }
-    } catch (e) {
-      print('Error en _pickImageFromGallery: $e');
+    final result = await ImageSelector.pickImageFromGallery();
+    if (result != null) {
       setState(() {
-        _errorMessage = 'Error al seleccionar la imagen: $e';
+        _imageBytes = result.bytes;
+        _imageFile = result.file;
+        _prediction = null;
       });
     }
   }
 
   Future<void> _takePhoto() async {
-    // Solicita permisos
-    final cameraStatus = await Permission.camera.request();
-    final photosStatus = await Permission.photos.request();
-
-    // Verifica si los permisos fueron concedidos
-    if (!cameraStatus.isGranted || !photosStatus.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permisos requeridos no concedidos.')),
-      );
-      return; // Salir del método si los permisos no son concedidos
-    }
-
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        print('Foto tomada: ${pickedFile.path}');
-        if (kIsWeb) {
-          final bytes = await pickedFile.readAsBytes();
-          setState(() {
-            _imageFile = pickedFile;
-            _imageBytes = bytes;
-            _imageFileMobile = null;
-            _prediction = null;
-            _errorMessage = null;
-          });
-        } else {
-          setState(() {
-            _imageFile = pickedFile;
-            _imageFileMobile = File(pickedFile.path);
-            _imageBytes = null;
-            _prediction = null;
-            _errorMessage = null;
-          });
-        }
-      } else {
-        print('Captura de foto cancelada');
-      }
-    } catch (e) {
-      print('Error en _takePhoto: $e');
+    final result = await ImageSelector.takePhoto();
+    if (result != null) {
       setState(() {
-        _errorMessage = 'Error al tomar la foto: $e';
+        _imageBytes = result.bytes;
+        _imageFile = result.file;
+        _prediction = null;
       });
     }
   }
 
-  Future<void> _predictImage() async {
-    if (_imageFile == null) {
-      setState(() {
-        _errorMessage = 'Por favor, selecciona o toma una foto primero.';
-      });
-      return;
-    }
+  Future<void> _sendToBackend() async {
+    if (_imageBytes == null && _imageFile == null) return;
 
-    print('Iniciando predicción con imagen: ${_imageFile!.path}');
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
-      final prediction = await ApiService().predict(_imageFile, widget.token);
+      final apiService = ApiService();
+      Prediction prediction;
+
+      if (kIsWeb && _imageBytes != null) {
+        prediction = await apiService.predict(_imageBytes!, widget.token);
+      } else if (!kIsWeb && _imageFile != null) {
+        prediction = await apiService.predict(_imageFile!, widget.token);
+      } else {
+        throw Exception('No se ha proporcionado una imagen válida');
+      }
+
       setState(() {
         _prediction = prediction;
-        _isLoading = false;
       });
     } catch (e) {
-      print('Error en _predictImage: $e');
+      print('Error al predecir: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al enviar la imagen al backend')),
+      );
+    } finally {
       setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
       });
     }
+  }
+
+  Widget _buildImageBox() {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child:
+          _imageBytes == null && _imageFile == null
+              ? Center(
+                child: Text(
+                  'No hay imagen seleccionada',
+                  style: GoogleFonts.poppins(color: Colors.grey[600]),
+                ),
+              )
+              : ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child:
+                    kIsWeb
+                        ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                        : Image.file(_imageFile!, fit: BoxFit.cover),
+              ),
+    );
+  }
+
+  Widget _buildPredictionResults() {
+    if (_prediction == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(height: 30),
+        Text(
+          'Resultado: ${_prediction!.prediction}',
+          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          'Tipo: ${_prediction!.type}',
+          style: GoogleFonts.poppins(fontSize: 16),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Probabilidades:',
+          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        ..._prediction!.probabilities.entries.map((entry) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text(entry.key, style: GoogleFonts.poppins())),
+                Text(
+                  '${entry.value.toStringAsFixed(2)}%',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           'FindOutMole',
-          style: GoogleFonts.poppins(
+          style: TextStyle(
+            color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
       ),
+
       body: Stack(
         children: [
-          // Imagen de fondo
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/2.png'),
-                fit: BoxFit.cover, // Cubre toda la pantalla
+                fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  Colors.white.withOpacity(0.5), // Opcional: opacidad
+                  Colors.white54,
                   BlendMode.dstATop,
                 ),
               ),
             ),
           ),
-          // Contenido desplazable
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: _imageFile == null
-                      ? Center(
-                          child: Text(
-                            'No hay imagen seleccionada',
-                            style: GoogleFonts.poppins(color: Colors.grey[600]),
-                          ),
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: kIsWeb
-                              ? Image.memory(
-                                  _imageBytes!,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.file(
-                                  _imageFileMobile!,
-                                  fit: BoxFit.cover,
-                                ),
-                        ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: kToolbarHeight + 16,
+                left: 16,
+                right: 16,
+                bottom: 16,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: _pickImageFromGallery,
-                      icon: const Icon(Icons.photo, size: 20),
-                      label: Text(
-                        'Galería',
-                        style: GoogleFonts.poppins(fontSize: 16),
-                      ),
+                    _buildImageBox(),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _pickImageFromGallery,
+                          icon: const Icon(Icons.photo),
+                          label: Text('Galería', style: GoogleFonts.poppins()),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: _takePhoto,
+                          icon: const Icon(Icons.camera_alt),
+                          label: Text('Cámara', style: GoogleFonts.poppins()),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _sendToBackend,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        backgroundColor: Colors.blueAccent,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
+                      child:
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : Text(
+                                'Analizar Imagen',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                     ),
-                    ElevatedButton.icon(
-                      onPressed: _takePhoto,
-                      icon: const Icon(Icons.camera_alt, size: 20),
-                      label: Text(
-                        'Cámara',
-                        style: GoogleFonts.poppins(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        shape: RoundedRectangleBorder(
+                    const SizedBox(height: 20),
+                    if (_errorMessage != null)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        child: Text(
+                          _errorMessage!,
+                          style: GoogleFonts.poppins(color: Colors.red[700]),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
+                    _buildPredictionResults(),
                   ],
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _predictImage,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          'Analizar Imagen',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                ),
-                const SizedBox(height: 20),
-                if (_errorMessage != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _errorMessage!,
-                      style: GoogleFonts.poppins(
-                        color: Colors.red[700],
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                if (_prediction != null) ...[
-                  const Divider(height: 30),
-                  Text(
-                    'Resultado: ${_prediction!.prediction}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    'Tipo: ${_prediction!.type}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Probabilidades:',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ..._prediction!.probabilities.entries.map(
-                    (entry) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              entry.key,
-                              style: GoogleFonts.poppins(fontSize: 14),
-                            ),
-                          ),
-                          Text(
-                            '${entry.value.toStringAsFixed(2)}%',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
           ),
         ],

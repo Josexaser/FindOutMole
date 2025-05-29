@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:findoutmole/screen/FootBar.dart'; // Importa el pie de página
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -52,7 +53,8 @@ class _PerfilPageState extends State<PerfilPage> {
   // Método para cargar los datos del usuario desde Firebase
   Future<void> _loadUserData() async {
     try {
-      final user = FirebaseAuth.instance.currentUser; // Obtiene el usuario autenticado
+      final user =
+          FirebaseAuth.instance.currentUser; // Obtiene el usuario autenticado
       if (user != null) {
         // Asignar el correo electrónico directamente desde FirebaseAuth
         setState(() {
@@ -60,10 +62,11 @@ class _PerfilPageState extends State<PerfilPage> {
         });
 
         // Obtener otros datos del usuario desde Firestore
-        final doc = await FirebaseFirestore.instance
-            .collection('users') // Colección en Firestore
-            .doc(user.uid) // Documento basado en el UID del usuario
-            .get();
+        final doc =
+            await FirebaseFirestore.instance
+                .collection('users') // Colección en Firestore
+                .doc(user.uid) // Documento basado en el UID del usuario
+                .get();
 
         if (doc.exists) {
           final data = doc.data()!;
@@ -79,26 +82,30 @@ class _PerfilPageState extends State<PerfilPage> {
       }
     } catch (e) {
       // Muestra un mensaje de error si ocurre algún problema
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar datos: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al cargar datos: $e')));
     }
   }
 
   // Método para guardar los datos del usuario en Firestore
   Future<void> _saveUserData() async {
     try {
-      final user = FirebaseAuth.instance.currentUser; // Obtiene el usuario autenticado
+      final user =
+          FirebaseAuth.instance.currentUser; // Obtiene el usuario autenticado
       if (user != null) {
         // Guarda los datos en la colección 'Perfil' en Firestore
-        await FirebaseFirestore.instance.collection('Perfil').doc(user.uid).set({
-          'nombre': _nombreController.text,
-          'apellidos': _apellidosController.text,
-          'email': _emailController.text,
-          'edad': _edadController.text,
-          'peso': _pesoController.text,
-          'altura': _alturaController.text,
-        });
+        await FirebaseFirestore.instance
+            .collection('Perfil')
+            .doc(user.uid)
+            .set({
+              'nombre': _nombreController.text,
+              'apellidos': _apellidosController.text,
+              'email': _emailController.text,
+              'edad': _edadController.text,
+              'peso': _pesoController.text,
+              'altura': _alturaController.text,
+            });
         // Muestra un mensaje de éxito
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Datos guardados correctamente')),
@@ -106,9 +113,9 @@ class _PerfilPageState extends State<PerfilPage> {
       }
     } catch (e) {
       // Muestra un mensaje de error si ocurre algún problema
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar datos: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al guardar datos: $e')));
     }
   }
 
@@ -136,7 +143,9 @@ class _PerfilPageState extends State<PerfilPage> {
                       IconButton(
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          Navigator.pop(context); // Regresar a la pantalla anterior
+                          Navigator.pop(
+                            context,
+                          ); // Regresar a la pantalla anterior
                         },
                       ),
                       const Spacer(),
@@ -209,14 +218,16 @@ class _PerfilPageState extends State<PerfilPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
-                            onPressed: _isEditing
-                                ? () async {
-                                    await _saveUserData();
-                                    setState(() {
-                                      _isEditing = false; // Deshabilitar edición
-                                    });
-                                  }
-                                : null,
+                            onPressed:
+                                _isEditing
+                                    ? () async {
+                                      await _saveUserData();
+                                      setState(() {
+                                        _isEditing =
+                                            false; // Deshabilitar edición
+                                      });
+                                    }
+                                    : null,
                             child: const Text('Guardar Cambios'),
                           ),
                           const SizedBox(width: 16),
@@ -244,38 +255,34 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   // Método para construir un campo de texto
+
   Widget _buildTextField({
     required String label,
     required String hintText,
     required IconData icon,
     required TextEditingController controller,
-    bool readOnly = false, // Nuevo parámetro para controlar si el campo es de solo lectura
+    bool readOnly = false,
   }) {
     return SizedBox(
-      width: 350,
+      width: kIsWeb ? 700 : 350, // más ancho en web
       child: TextFormField(
         controller: controller,
-        enabled: _isEditing && !readOnly, // Solo habilitar si no es de solo lectura
-        readOnly: readOnly, // Hacer el campo de solo lectura si es necesario
+        enabled: _isEditing && !readOnly,
+        readOnly: readOnly,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(
-            fontSize: 16, // Tamaño de fuente más grande
-            color: Color.fromARGB(255, 0, 0, 0), // Color negro para el texto del título
+            fontSize: 16,
+            color: Color.fromARGB(255, 0, 0, 0),
           ),
-          floatingLabelBehavior: FloatingLabelBehavior.always, // El label siempre estará flotando
-          hintText: hintText, // Texto de sugerencia
-          hintStyle: const TextStyle(
-            fontSize: 14, // Tamaño de fuente para el texto de sugerencia
-            color: Colors.grey, // Color gris para el texto de sugerencia
-          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hintText: hintText,
+          hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
           prefixIcon: Opacity(
-            opacity: 0.5, // Nivel de transparencia del ícono (0.0 a 1.0)
-            child: Icon(icon, color: const Color.fromARGB(255, 25, 84, 133)), // Ícono con color azul
+            opacity: 0.5,
+            child: Icon(icon, color: Color.fromARGB(255, 25, 84, 133)),
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
           filled: true,
           fillColor: const Color.fromARGB(255, 245, 241, 241).withOpacity(0.8),
         ),

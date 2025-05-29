@@ -22,7 +22,7 @@ app = FastAPI(title="FindOutMole API")
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "http://localhost:8000", "http://127.0.0.1:8000", "http://localhost:8080"],
+    allow_origins=["*"], # Pruebas en desarrollo local, permite cualquier origen. Cambiar a dominios específicos en producción.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -44,19 +44,20 @@ class _TexfieldUsuarioPasswState extends State<TexfieldUsuarioPassw> {
             borderRadius: BorderRadius.circular(30),
             borderSide: BorderSide.none,
           ),
-          suffixIcon: widget.obscureText
-              ? IconButton(
-                  icon: Icon(
-                    _isObscured ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscured = !_isObscured;
-                    });
-                  },
-                )
-              : null,
+          suffixIcon:
+              widget.obscureText
+                  ? IconButton(
+                    icon: Icon(
+                      _isObscured ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isObscured = !_isObscured;
+                      });
+                    },
+                  )
+                  : null,
         ),
       ),
     );

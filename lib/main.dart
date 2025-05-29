@@ -5,9 +5,7 @@ import 'package:findoutmole/screen/WelcomeScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MainApp());
 }
@@ -18,9 +16,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        body: Center(child: WelcomeScreen()),
-      ),
+      home: Scaffold(body: Center(child: WelcomeScreen())),
     );
   }
 }

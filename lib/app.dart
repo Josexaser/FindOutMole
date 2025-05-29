@@ -9,7 +9,8 @@ class AppHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: LoginPage(),    // Pantalla de inicio de sesión     // Pantalla de inicio (Home),
+        child:
+            LoginPage(), // Pantalla de inicio de sesión     // Pantalla de inicio (Home),
       ),
     );
   }

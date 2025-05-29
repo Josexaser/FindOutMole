@@ -1,11 +1,10 @@
 import 'package:findoutmole/screen/login_screen/boton_nuevo_usuario.dart';
-import 'package:findoutmole/screen/login_screen/boton_acceder.dart';
 import 'package:findoutmole/screen/login_screen/boton_recuperar_contrasena.dart';
 import 'package:findoutmole/screen/login_screen/text_find_out.dart';
-import 'package:findoutmole/screen/login_screen/textfield_user.dart';
-import 'package:flutter/material.dart';
 import 'package:findoutmole/screen/login_screen/text_mole.dart';
 import 'package:findoutmole/screen/FootBar.dart';
+import 'package:flutter/material.dart';
+import 'package:findoutmole/screen/login_screen/boton_acceder.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -16,9 +15,7 @@ class LoginPage extends StatelessWidget {
     final TextEditingController passController = TextEditingController();
 
     return Scaffold(
-      // Scaffold proporciona la estructura visual básica de la app (barra superior, body, etc.)
       body: Stack(
-        // Stack permite superponer widgets uno encima de otro
         children: [
           SizedBox.expand(
             child: Image.asset('assets/images/2.png', fit: BoxFit.cover),
@@ -26,42 +23,130 @@ class LoginPage extends StatelessWidget {
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-
               children: [
-                FindOutText(),
-                MoleText(),
-                Expanded(child: SizedBox(height: 280)),
+                const FindOutText(),
+                const MoleText(),
+                const Expanded(child: SizedBox(height: 280)),
 
-                TexfieldUsuarioPassw(
-                  hintText: 'Usuario', // Texto dentro del campo
-                  icon: Icons.person, // Icono de usuario
-                  obscureText: false,
+                _StyledInputField(
+                  hintText: 'Usuario',
+                  icon: Icons.person,
                   controller: userController,
+                  obscureText: false,
                 ),
+                const SizedBox(height: 20),
 
-                SizedBox(height: 20),
-
-                TexfieldUsuarioPassw(
+                _StyledInputField(
                   hintText: 'Contraseña',
                   icon: Icons.lock,
-                  obscureText: true,
                   controller: passController,
+                  obscureText: true,
                 ),
-
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 BotonAcceder(
                   userController: userController,
                   passwordController: passController,
                 ),
-                SizedBox(height: 10),
-                BotonRecuperarContrasena(),
-                BotonNuevoUsuario(),
+                const SizedBox(height: 10),
+                const BotonRecuperarContrasena(),
+                const BotonNuevoUsuario(),
               ],
             ),
           ),
         ],
       ),
-      bottomNavigationBar: FooterBar(),
+      bottomNavigationBar: const FooterBar(),
+    );
+  }
+}
+
+class _StyledInputField extends StatefulWidget {
+  final String hintText;
+  final IconData icon;
+  final TextEditingController controller;
+  final bool obscureText;
+
+  const _StyledInputField({
+    required this.hintText,
+    required this.icon,
+    required this.controller,
+    required this.obscureText,
+  });
+
+  @override
+  State<_StyledInputField> createState() => _StyledInputFieldState();
+}
+
+class _StyledInputFieldState extends State<_StyledInputField> {
+  late bool _obscureText;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.obscureText;
+  }
+
+  void _toggleObscureText() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(0.3),
+              Colors.white.withOpacity(0.5),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: widget.controller,
+          obscureText: _obscureText,
+          decoration: InputDecoration(
+            labelText: widget.hintText,
+            labelStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            prefixIcon: Icon(widget.icon, color: Colors.white),
+            suffixIcon:
+                widget.obscureText
+                    ? IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.white,
+                      ),
+                      onPressed: _toggleObscureText,
+                    )
+                    : null,
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 10,
+            ),
+          ),
+          style: const TextStyle(color: Colors.black, fontSize: 16),
+        ),
+      ),
     );
   }
 }

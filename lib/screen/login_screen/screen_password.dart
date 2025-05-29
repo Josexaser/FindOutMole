@@ -1,6 +1,7 @@
 // import 'package:findoutmole/screen/login_screen/screen_new_password.dart'; En un principio no es necesario
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:findoutmole/screen/FootBar.dart';
 
 class ScreenPassword extends StatefulWidget {
   const ScreenPassword({super.key});
@@ -11,19 +12,20 @@ class ScreenPassword extends StatefulWidget {
 
 class ScreenPasswordState extends State<ScreenPassword> {
   final TextEditingController comprobacionCorreo = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: configuracionAppBar(context),
+      bottomNavigationBar: const FooterBar(), // Pie de página
       body: Stack(
-        // Stack es un Contenedor que permite colocar varios widgets en la pantalla y que los widgets se suerpongan unos de otros.
+        // Stack es un Contenedor que permite colocar varios widgets en la pantalla y que los widgets se superpongan unos de otros.
         children: [
           imagenDeFondo(), // Metodo de configuracion de la imagen de fondo
           SafeArea(
             // SafeArea asegura que el contenido no se superponga a la barra de estado y la barra de navegación
             child: Padding(
-              //
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: contenidoPagina(context),
             ),
@@ -36,12 +38,8 @@ class ScreenPasswordState extends State<ScreenPassword> {
   // AppBar transparente con botón de retroceso. Permite que el appBar sea transparente y que el contenido de la pantalla se vea detrás de ella.
   AppBar configuracionAppBar(BuildContext context) {
     return AppBar(
-      title: const Text('Login'),
-      backgroundColor:
-          Colors
-              .transparent, // Al ponerlo en transparente, el AppBar se convierte en un widget vacío
-      elevation:
-          0, // Elimina la sombra del AppBar y que el contenido se pueda ver (se consigue junto a transparent)
+      backgroundColor: Colors.transparent, // AppBar transparente
+      elevation: 0, // Elimina la sombra del AppBar
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () => Navigator.pop(context),
@@ -58,12 +56,24 @@ class ScreenPasswordState extends State<ScreenPassword> {
 
   // Contenido del formulario de recuperación
   Widget contenidoPagina(BuildContext context) {
-    //Metodos que configura el contenido
+    // Column principal centrada verticalmente con espacio alrededor
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        const SizedBox(height: 10),
+        // Título principal de la pantalla
+        const Text(
+          'Recuperar Contraseña',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 44,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 40), // Espacio entre título y textos
         textoBienvenida1(),
-        const SizedBox(height: 10), // Espacio entre widgets
+        const SizedBox(height: 10),
         textoBienvenida2(),
         const SizedBox(height: 40),
         palabraCorreo(),
@@ -106,7 +116,7 @@ class ScreenPasswordState extends State<ScreenPassword> {
   // Texto Correo electrónico
   Widget palabraCorreo() {
     return Container(
-      alignment: Alignment.centerLeft, // Alinea a la izquierda
+      alignment: Alignment.centerLeft,
       child: const Text(
         'Correo',
         style: TextStyle(
@@ -118,51 +128,75 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // Campo de texto para el correo electrónico
+  // Campo de texto para el correo electrónico (estilo Register)
   Widget campoCorreo() {
-    return TextField(
-      controller: comprobacionCorreo,
-      style: const TextStyle(color: Colors.black),
-      decoration: InputDecoration(
-        //Personlazacion del campo de texto
-        filled: true,
-        // ignore: deprecated_member_use
-        fillColor: Colors.white.withOpacity(0.4),
-        hintText: 'Ej: user@gmail.com',
-        hintStyle: const TextStyle(color: Colors.black45),
-        prefixIcon: const Icon(Icons.email, color: Colors.white),
-        border: OutlineInputBorder(
-          //Borde del campo de texto
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none, // Elimina el borde del campo de texto
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.3),
+            Colors.white.withOpacity(0.5),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.1),
+            blurRadius: 8.0,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      keyboardType:
-          TextInputType
-              .emailAddress, //Permite  que se incluya en el capo simbolos como @
+      child: TextField(
+        controller: comprobacionCorreo,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+          labelText: 'Correo electrónico',
+          labelStyle: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide.none,
+          ),
+          prefixIcon: const Icon(Icons.email, color: Colors.white),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 10.0,
+          ),
+        ),
+        style: const TextStyle(color: Colors.black, fontSize: 16.0),
+      ),
     );
   }
 
-  // Botón para enviar el correo
+  // Botón para enviar el correo (estilo Register)
   Widget botonEnviar(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.blueAccent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 50),
+      child: Container(
+        width: double.infinity,
+        height: 50,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4DD0E1), Color(0xFF1976D2)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 40), // ancho visual
         ),
-        onPressed: () => funcionalidadEnvio(context),
-        // Configura el estilo del texto del mensaje
-        child: const Text(
-          'Enviar',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+        child: TextButton(
+          onPressed: () => funcionalidadEnvio(context),
+          child: const Text(
+            'Enviar',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -171,9 +205,8 @@ class ScreenPasswordState extends State<ScreenPassword> {
 
   //Funcionalidad del botón para enviar el correo
   void funcionalidadEnvio(BuildContext context) async {
-    // Obtiene el correo ingresado y elimina los espacios en blanco
-    final correo = comprobacionCorreo.text.trim();
-    // Validación: campo vacío
+    final correo = comprobacionCorreo.text.trim().toLowerCase();
+    ;
     if (correo.isEmpty) {
       showDialog(
         context: context,
@@ -193,7 +226,6 @@ class ScreenPasswordState extends State<ScreenPassword> {
       );
       return;
     }
-
     // Validación: formato de correo inválido
     final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!regex.hasMatch(correo)) {
@@ -225,13 +257,13 @@ class ScreenPasswordState extends State<ScreenPassword> {
             (context) => AlertDialog(
               title: const Text('Correo enviado'),
               content: const Text(
-                'Te hemos enviado un correo para restablecer tu contraseña. Revisa tu bandeja de entrada.',
+                'Hemos enviado un correo para restablecer tu contraseña. Revisa tu bandeja de entrada.',
               ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context); // Cierra el diálogo
-                    Navigator.pop(context); // Vuelve al login
+                    Navigator.pop(context);
+                    Navigator.pop(context);
                   },
                   child: const Text('Aceptar'),
                 ),
@@ -239,7 +271,6 @@ class ScreenPasswordState extends State<ScreenPassword> {
             ),
       );
     } catch (e) {
-      // Diálogo de error
       showDialog(
         context: context,
         builder:

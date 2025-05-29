@@ -21,10 +21,7 @@ class ImagePreviewScreen extends StatelessWidget {
           scaleEnabled: true, // puedes hacer zoom
           minScale: 1,
           maxScale: 5,
-          child: Image.file(
-            imageFile,
-            fit: BoxFit.contain,
-          ),
+          child: Image.file(imageFile, fit: BoxFit.contain),
         ),
       ),
     );
