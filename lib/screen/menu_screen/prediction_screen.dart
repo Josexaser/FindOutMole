@@ -211,30 +211,93 @@ class _PredictionScreenState extends State<PredictionScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _sendToBackend,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    const SizedBox(height: 60),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Botón "Analizar Imagen"
+                        Container(
+                          height: 50,
+                          width: 210,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF4DD0E1), Color(0xFF1976D2)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _sendToBackend,
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding:
+                                  EdgeInsets
+                                      .zero, // importante para respetar tu ancho
+                            ),
+                            child: Center(
+                              child:
+                                  _isLoading
+                                      ? const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                      : Text(
+                                        'Analizar Imagen',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child:
-                          _isLoading
-                              ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                              : Text(
-                                'Analizar Imagen',
+                        const SizedBox(width: 40), // espacio entre botones
+                        // Botón "Diagnóstico"
+                        Container(
+                          height: 50,
+                          width: 210,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF4DD0E1), Color(0xFF1976D2)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Acción del segundo botón
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Diagnóstico',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+
                     const SizedBox(height: 20),
                     if (_errorMessage != null)
                       Container(
