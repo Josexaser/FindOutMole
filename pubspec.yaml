@@ -1,47 +1,68 @@
+# Nombre del proyecto Flutter
 name: findoutmole
+
+# Descripción del proyecto (puede usarse en pub.dev si se publica)
 description: "A new Flutter project."
+
+# Indica que este paquete no se va a publicar en pub.dev
 publish_to: 'none'
+
+# Versión del proyecto en formato major.minor.patch
 version: 0.1.0
 
+# Requisitos de versión del SDK de Dart
 environment:
   sdk: ">=3.7.2 <4.0.0"
 
+# Dependencias necesarias en tiempo de ejecución
 dependencies:
   flutter:
-    sdk: flutter
+    sdk: flutter  # SDK de Flutter necesario
+
+  # Tipografías de Google para personalizar UI
   google_fonts: ^6.2.1
+
+  # Iconos estilo iOS
   cupertino_icons: ^1.0.2
+
+  # Iconos de FontAwesome para añadir iconografía variada
   font_awesome_flutter: ^10.8.0
 
   # Firebase
-  firebase_core: ^3.13.1
-  firebase_auth: ^5.5.4
-  firebase_auth_web: ^5.14.3
-  cloud_firestore: ^5.6.8
+  firebase_core: ^3.13.1         # Inicializa Firebase
+  firebase_auth: ^5.5.4          # Autenticación (email, Google, etc.)
+  firebase_auth_web: ^5.14.3     # Versión web de autenticación
+  cloud_firestore: ^5.6.8        # Base de datos NoSQL (Firestore)
 
   # Imagen y edición
-  image_picker: ^1.1.1
-  image_picker_for_web: ^3.0.6
-  image_editor: ^1.6.0
-  file_picker: ^10.1.9
-
+  image_picker: ^1.1.1           # Seleccionar imágenes desde galería o cámara
+  image_picker_for_web: ^3.0.6   # Compatibilidad con Web
+  image_editor: ^1.6.0           # Edición básica de imágenes (recortes, etc.)
+  file_picker: ^10.1.9           # Selección de archivos desde el dispositivo
 
   # Red y utilidades
-  http: ^1.4.0
-  http_parser: ^4.1.2
-  path: ^1.9.1
-  intl: ^0.20.2
+  http: ^1.4.0                   # Peticiones HTTP
+  http_parser: ^4.1.2            # Análisis de tipos MIME y cabeceras
+  path: ^1.9.1                   # Manipulación de rutas de archivos
+  intl: ^0.20.2                  # Internacionalización y formato de fechas
 
+  # Generar y descargar PDF
+  pdf: ^3.10.4                   # Crear archivos PDF
+  printing: ^5.12.0              # Vista previa e impresión de PDF
+
+# Dependencias necesarias solo en desarrollo (no se incluyen en el APK final)
 dev_dependencies:
   flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
+    sdk: flutter                # Framework de testing de Flutter
+  flutter_lints: ^5.0.0         # Reglas de buenas prácticas y estilo
 
+# Configuraciones específicas de Flutter
 flutter:
-  uses-material-design: true
+  uses-material-design: true     # Habilita uso del tema Material Design
 
+  # Rutas de recursos estáticos utilizados por la app
   assets:
-    - assets/images/
-    - assets/fonts/
+    - assets/images/             # Imágenes del proyecto
+    - assets/fonts/              # Fuentes personalizadas
 
-  fonts: []
+  fonts: []                      # (opcional) Si se usan fuentes personalizadas, se definen aquí
