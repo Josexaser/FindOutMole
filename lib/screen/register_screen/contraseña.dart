@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
 
+/// @class PasswordField
+/// @brief Campo de texto para ingresar la contraseña con validación visual.
+/// 
+/// Muestra un campo de contraseña y valida que cumpla los requisitos de seguridad.
 class PasswordField extends StatefulWidget {
-
+  /// @brief Controlador para la contraseña.
   final TextEditingController controller;
 
+  /// @brief Constructor del campo de contraseña.
+  /// @param controller Controlador para la contraseña.
+  /// @param key Clave opcional para el widget.
   const PasswordField({
-  super.key, 
-  required this.controller});
+    super.key,
+    required this.controller,
+  });
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _PasswordFieldState.
   @override
   _PasswordFieldState createState() => _PasswordFieldState();
 }
 
+/// @class _PasswordFieldState
+/// @brief Estado del campo de contraseña para manejar la lógica de validación.
 class _PasswordFieldState extends State<PasswordField> {
   bool _isObscured = true;
   String? _errorText;
 
-  // Función para validar la contraseña
+  /// @brief Valida que la contraseña cumpla los requisitos de seguridad.
+  /// @param value Valor ingresado en el campo de contraseña.
   void _validatePassword(String value) {
     final RegExp regex = RegExp(
       r'^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$&*~]).{6,}$',
@@ -53,6 +66,9 @@ class _PasswordFieldState extends State<PasswordField> {
     super.dispose();
   }
 
+  /// @brief Construye el widget del campo de contraseña.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget con el campo de texto y validación.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -71,19 +87,14 @@ class _PasswordFieldState extends State<PasswordField> {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color.fromARGB(
-                  255,
-                  253,
-                  253,
-                  253,
-                ).withOpacity(0.1),
+                color: const Color.fromARGB(255, 253, 253, 253).withOpacity(0.1),
                 blurRadius: 8.0,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
           child: TextField(
-            controller: widget.controller, //modificado por JB
+            controller: widget.controller,
             obscureText: _isObscured,
             decoration: InputDecoration(
               labelText: 'Contraseña',
@@ -114,11 +125,13 @@ class _PasswordFieldState extends State<PasswordField> {
                 vertical: 16.0,
                 horizontal: 10.0,
               ),
+              errorText: _errorText,
             ),
             style: const TextStyle(
               color: Color.fromARGB(255, 0, 0, 0),
               fontSize: 16.0,
             ),
+            onChanged: _validatePassword,
           ),
         ),
         if (_errorText != null)

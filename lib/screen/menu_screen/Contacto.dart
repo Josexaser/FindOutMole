@@ -2,9 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:findoutmole/screen/FootBar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+/// @class ContactoScreen
+/// @brief Pantalla de contacto para que el usuario pueda comunicarse con el equipo de soporte.
+/// 
+/// Incluye información de contacto, redes sociales, ubicación y un formulario para enviar mensajes.
 class ContactoScreen extends StatelessWidget {
+  /// @brief Constructor de la pantalla de contacto.
+  /// @param key Clave opcional para el widget.
   const ContactoScreen({super.key});
 
+  /// @brief Construye el widget principal de la pantalla de contacto.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de contacto.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,7 +204,11 @@ class ContactoScreen extends StatelessWidget {
     );
   }
 
-  // Método para crear una fila de contacto reutilizable
+  /// @brief Crea una fila de contacto reutilizable.
+  /// @param icon Icono a mostrar.
+  /// @param color Color del icono.
+  /// @param text Texto de contacto.
+  /// @return Widget con la fila de contacto.
   Widget _buildContactRow({
     required IconData icon,
     required Color color,
@@ -215,7 +228,11 @@ class ContactoScreen extends StatelessWidget {
     );
   }
 
-  // Método para crear un campo de texto reutilizable (con opción para multilinea)
+  /// @brief Crea un campo de texto reutilizable (con opción para multilinea).
+  /// @param label Etiqueta del campo.
+  /// @param icon Icono a mostrar.
+  /// @param isMultiline Indica si el campo es multilínea.
+  /// @return Widget con el campo de texto.
   Widget _buildTextField(
     String label,
     IconData icon, {

@@ -1,5 +1,6 @@
 /// Pantalla principal para mostrar el resultado del análisis de imagen
 /// y generar un informe en PDF en Flutter Web y Android
+library;
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -14,18 +15,25 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-/// Widget de pantalla que permite cargar una imagen, enviar al backend
-/// para predicción y generar un PDF con los resultados
+/// @class PredictionScreen
+/// @brief Pantalla para analizar una imagen y generar un informe PDF.
+/// 
+/// Permite seleccionar/capturar una imagen, enviarla al backend para predicción y generar un PDF con los resultados.
 class PredictionScreen extends StatefulWidget {
+  /// @brief Token JWT del usuario autenticado.
   final String token;
 
-  /// Constructor que requiere el token JWT del usuario autenticado
+  /// @brief Constructor que requiere el token JWT del usuario autenticado.
+  /// @param key Clave opcional para el widget.
+  /// @param token Token JWT.
   const PredictionScreen({super.key, required this.token});
 
   @override
   State<PredictionScreen> createState() => _PredictionScreenState();
 }
 
+/// @class _PredictionScreenState
+/// @brief Estado de PredictionScreen para manejar la lógica de análisis y PDF.
 class _PredictionScreenState extends State<PredictionScreen> {
   Uint8List? _imageBytes;
   File? _imageFile;
@@ -33,7 +41,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  /// Selecciona una imagen desde la galería y actualiza el estado
+  /// @brief Selecciona una imagen desde la galería y actualiza el estado.
   Future<void> _pickImageFromGallery() async {
     final result = await ImageSelector.pickImageFromGallery();
     if (result != null) {
@@ -46,7 +54,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
     }
   }
 
-  /// Captura una foto con la cámara del dispositivo
+  /// @brief Captura una foto con la cámara del dispositivo.
   Future<void> _takePhoto() async {
     final result = await ImageSelector.takePhoto();
     if (result != null) {
@@ -58,12 +66,13 @@ class _PredictionScreenState extends State<PredictionScreen> {
     }
   }
 
-  /// Envia la imagen seleccionada al backend para análisis
+  /// @brief Envía la imagen seleccionada al backend para análisis.
   Future<void> _sendToBackend() async {
     if (_imageBytes == null && _imageFile == null) return;
 
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
     try {
@@ -83,6 +92,9 @@ class _PredictionScreenState extends State<PredictionScreen> {
       });
     } catch (e) {
       print('Error al predecir: $e');
+      setState(() {
+        _errorMessage = 'Error al enviar la imagen al backend';
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al enviar la imagen al backend')),
       );
@@ -93,7 +105,9 @@ class _PredictionScreenState extends State<PredictionScreen> {
     }
   }
 
-  /// Genera y muestra un PDF con los resultados del análisis
+  /// @brief Genera y muestra un PDF con los resultados del análisis.
+  /// @param perfilData Datos del perfil médico.
+  /// @param prediction Resultado de la predicción.
   Future<void> generarPDF({
     required Map<String, dynamic> perfilData,
     required Prediction prediction,
@@ -114,8 +128,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                 ),
               ),
               pw.SizedBox(height: 20),
-
-              /// Mostrar la imagen analizada si está disponible
               if (_imageBytes != null) ...[
                 pw.Text('Imagen analizada:'),
                 pw.SizedBox(height: 10),
@@ -157,7 +169,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
     );
   }
 
-  /// Muestra la imagen seleccionada en pantalla
+  /// @brief Muestra la imagen seleccionada en pantalla.
   Widget _buildImageBox() {
     return Container(
       height: 200,
@@ -173,25 +185,23 @@ class _PredictionScreenState extends State<PredictionScreen> {
           ),
         ],
       ),
-      child:
-          _imageBytes == null && _imageFile == null
-              ? Center(
-                child: Text(
-                  'No hay imagen seleccionada',
-                  style: GoogleFonts.poppins(color: Colors.grey[600]),
-                ),
-              )
-              : ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child:
-                    kIsWeb
-                        ? Image.memory(_imageBytes!, fit: BoxFit.cover)
-                        : Image.file(_imageFile!, fit: BoxFit.cover),
+      child: _imageBytes == null && _imageFile == null
+          ? Center(
+              child: Text(
+                'No hay imagen seleccionada',
+                style: GoogleFonts.poppins(color: Colors.grey[600]),
               ),
+            )
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: kIsWeb
+                  ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                  : Image.file(_imageFile!, fit: BoxFit.cover),
+            ),
     );
   }
 
-  /// Muestra los resultados de la predicción en texto en formato lista
+  /// @brief Muestra los resultados de la predicción en texto en formato lista.
   Widget _buildPredictionResults() {
     if (_prediction == null) return const SizedBox.shrink();
 
@@ -231,7 +241,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
     );
   }
 
-  /// Construcción del widget principal de la pantalla
+  /// @brief Construcción del widget principal de la pantalla.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -241,14 +251,13 @@ class _PredictionScreenState extends State<PredictionScreen> {
         elevation: 0,
         title: Text(
           'FindOutMole',
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-
       body: Stack(
         children: [
           /// Fondo de pantalla con imagen
@@ -264,7 +273,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
               ),
             ),
           ),
-
           /// Contenido principal dentro de un área segura
           SafeArea(
             child: Padding(
@@ -280,7 +288,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                   children: [
                     _buildImageBox(),
                     const SizedBox(height: 20),
-
                     /// Botones para seleccionar imagen desde galería o cámara
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -298,7 +305,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                       ],
                     ),
                     const SizedBox(height: 60),
-
                     /// Botones de acción: Analizar imagen y generar diagnóstico
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -325,29 +331,24 @@ class _PredictionScreenState extends State<PredictionScreen> {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               padding: EdgeInsets.zero,
-
-                              /// importante para respetar tu ancho
                             ),
                             child: Center(
-                              child:
-                                  _isLoading
-                                      ? const CircularProgressIndicator(
+                              child: _isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
+                                  : Text(
+                                      'Analizar Imagen',
+                                      style: GoogleFonts.poppins(
                                         color: Colors.white,
-                                      )
-                                      : Text(
-                                        'Analizar Imagen',
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
+                                    ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 20),
-
-                        /// espacio entre botones
                         /// Botón "Diagnóstico"
                         Container(
                           height: 50,
@@ -390,15 +391,12 @@ class _PredictionScreenState extends State<PredictionScreen> {
                                 );
                                 return;
                               }
-
-                              /// Extraer datos del perfil médico
-                              final nombre =
-                                  perfilData['nombre'] ?? 'No definido';
+                              // Extraer datos del perfil médico
+                              final nombre = perfilData['nombre'] ?? 'No definido';
                               final apellidos = perfilData['apellidos'] ?? '';
                               final edad = perfilData['edad'] ?? 'No definido';
                               final peso = perfilData['peso'] ?? 'No definido';
-                              final altura =
-                                  perfilData['altura'] ?? 'No definido';
+                              final altura = perfilData['altura'] ?? 'No definido';
                               final correo = user.email ?? 'No definido';
                               showDialog(
                                 context: context,
@@ -411,8 +409,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
                                     contentPadding: const EdgeInsets.all(20),
                                     content: SingleChildScrollView(
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Orientación Diagnóstica',
@@ -463,43 +460,29 @@ class _PredictionScreenState extends State<PredictionScreen> {
                                             ),
                                           ),
                                           const SizedBox(height: 8),
-                                          ..._prediction!.probabilities.entries.map((
-                                            entry,
-                                          ) {
+                                          ..._prediction!.probabilities.entries.map((entry) {
                                             return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 2,
-                                                  ),
+                                              padding: const EdgeInsets.symmetric(vertical: 2),
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Expanded(
                                                     child: Text(
                                                       entry.key,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                            fontSize: 14,
-                                                          ),
+                                                      style: GoogleFonts.poppins(fontSize: 14),
                                                     ),
                                                   ),
                                                   Text(
                                                     '${entry.value.toStringAsFixed(2)}%',
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 14,
-                                                    ),
+                                                    style: GoogleFonts.poppins(fontSize: 14),
                                                   ),
                                                 ],
                                               ),
                                             );
-                                          }).toList(),
+                                          }),
                                         ],
                                       ),
                                     ),
-
-                                    /// Botones de guardar y cerrar diálogo emergente
                                     actions: [
                                       TextButton(
                                         child: const Text('Cerrar'),
@@ -508,20 +491,15 @@ class _PredictionScreenState extends State<PredictionScreen> {
                                       TextButton(
                                         onPressed: () async {
                                           Navigator.of(context).pop();
-
-                                          /// cerrar el diálogo
-                                          /// Asegura que los bytes estén disponibles
-                                          if (_imageBytes == null &&
-                                              _imageFile != null) {
-                                            _imageBytes =
-                                                await _imageFile!.readAsBytes();
+                                          if (_imageBytes == null && _imageFile != null) {
+                                            _imageBytes = await _imageFile!.readAsBytes();
                                           }
                                           await generarPDF(
-                                            perfilData: perfilData!,
+                                            perfilData: perfilData,
                                             prediction: _prediction!,
                                           );
                                         },
-                                        child: Text("Guardar"),
+                                        child: const Text("Guardar"),
                                       ),
                                     ],
                                   );
@@ -552,8 +530,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-
-                    /// Mensaje de error en caso de fallo
                     if (_errorMessage != null)
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -567,8 +543,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-
-                    /// Resultados de la predicción
                     _buildPredictionResults(),
                   ],
                 ),

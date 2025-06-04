@@ -4,18 +4,34 @@ import 'package:image_editor/image_editor.dart' as editor;
 import 'dart:io';
 import 'package:findoutmole/screen/FootBar.dart';
 
+/// @class ArchivosScreen
+/// @brief Pantalla para gestionar archivos médicos (imágenes).
+/// 
+/// Permite al usuario seleccionar, editar, visualizar y eliminar imágenes médicas desde la galería o la cámara.
 class ArchivosScreen extends StatefulWidget {
+  /// @brief Constructor de la pantalla de archivos médicos.
+  /// @param key Clave opcional para el widget.
   const ArchivosScreen({super.key});
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _ArchivosScreenState.
   @override
   _ArchivosScreenState createState() => _ArchivosScreenState();
 }
 
+/// @class _ArchivosScreenState
+/// @brief Estado de la pantalla ArchivosScreen para manejar la lógica de imágenes.
 class _ArchivosScreenState extends State<ArchivosScreen> {
+  /// @brief Instancia del selector de imágenes.
   final picker.ImagePicker _picker = picker.ImagePicker();
+  /// @brief Lista de imágenes seleccionadas y editadas.
   final List<File> _images = [];
+  /// @brief Indica si se está cargando una imagen.
   bool _isLoading = false;
 
+  /// @brief Permite seleccionar una imagen desde la galería o la cámara.
+  /// @param source Fuente de la imagen (galería o cámara).
+  /// @return void
   Future<void> _pickImage(picker.ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
@@ -28,6 +44,9 @@ class _ArchivosScreenState extends State<ArchivosScreen> {
     }
   }
 
+  /// @brief Edita la imagen recortándola a 500x500 píxeles.
+  /// @param imageFile Archivo de imagen a editar.
+  /// @return Archivo de imagen editado o null si falla.
   Future<File?> _editImage(File imageFile) async {
     try {
       final editorOption = editor.ImageEditorOption();
@@ -53,6 +72,9 @@ class _ArchivosScreenState extends State<ArchivosScreen> {
     return null;
   }
 
+  /// @brief Elimina una imagen de la lista tras confirmación del usuario.
+  /// @param index Índice de la imagen a eliminar.
+  /// @return void
   void _removeImage(int index) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -82,6 +104,9 @@ class _ArchivosScreenState extends State<ArchivosScreen> {
     }
   }
 
+  /// @brief Construye el widget principal de la pantalla.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de archivos médicos.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,6 +168,8 @@ class _ArchivosScreenState extends State<ArchivosScreen> {
     );
   }
 
+  /// @brief Muestra un cuadro vacío para subir la primera imagen.
+  /// @return Widget con el cuadro vacío.
   Widget _buildEmptyImageBox() {
     return Center(
       child: GestureDetector(
@@ -181,6 +208,8 @@ class _ArchivosScreenState extends State<ArchivosScreen> {
     );
   }
 
+  /// @brief Muestra las imágenes seleccionadas en una cuadrícula.
+  /// @return Widget con la cuadrícula de imágenes.
   Widget _buildImageGrid() {
     return GridView.builder(
       shrinkWrap: true,
@@ -228,6 +257,8 @@ class _ArchivosScreenState extends State<ArchivosScreen> {
     );
   }
 
+  /// @brief Muestra los botones para seleccionar imagen desde galería o cámara.
+  /// @return Widget con la fila de botones.
   Widget _buildButtonRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

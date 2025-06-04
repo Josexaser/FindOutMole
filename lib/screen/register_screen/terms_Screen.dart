@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 
+/// @class TermsScreen
+/// @brief Pantalla que muestra los términos y condiciones de uso de la aplicación.
+/// 
+/// Permite al usuario leer los términos y regresar a la pantalla anterior.
 class TermsScreen extends StatelessWidget {
+  /// @brief Constructor del widget TermsScreen.
+  /// @param key Clave opcional para el widget.
   const TermsScreen({super.key});
 
+  /// @brief Construye el widget principal de la pantalla de términos y condiciones.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget con los términos y condiciones.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,7 +20,7 @@ class TermsScreen extends StatelessWidget {
           // Imagen de fondo
           Positioned.fill(
             child: Image.asset(
-              'assets/images/2.png', 
+              'assets/images/2.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -25,12 +34,12 @@ class TermsScreen extends StatelessWidget {
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.white),
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
                           Navigator.pop(context); // Regresa a la pantalla anterior
                         },
                       ),
-                      Text(
+                      const Text(
                         'Términos y Condiciones',
                         style: TextStyle(
                           color: Colors.white,
@@ -40,17 +49,17 @@ class TermsScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   // Contenido desplazable
                   Expanded(
                     child: SingleChildScrollView(
                       child: Container(
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9), 
+                          color: Colors.white.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        child: Text(
+                        child: const Text(
                           '''
 Términos y Condiciones de Uso
 

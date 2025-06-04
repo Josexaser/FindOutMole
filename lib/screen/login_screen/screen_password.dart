@@ -1,18 +1,31 @@
-// import 'package:findoutmole/screen/login_screen/screen_new_password.dart'; En un principio no es necesario
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:findoutmole/screen/FootBar.dart';
 
+/// @class ScreenPassword
+/// @brief Pantalla para la recuperación de contraseña mediante correo electrónico.
+/// 
+/// Permite al usuario introducir su correo para recibir un enlace de restablecimiento de contraseña.
 class ScreenPassword extends StatefulWidget {
+  /// @brief Constructor de la pantalla de recuperación de contraseña.
+  /// @param key Clave opcional para el widget.
   const ScreenPassword({super.key});
-  //Estructura principal del widget
+
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de ScreenPasswordState.
   @override
   ScreenPasswordState createState() => ScreenPasswordState();
 }
 
+/// @class ScreenPasswordState
+/// @brief Estado de la pantalla de recuperación de contraseña.
 class ScreenPasswordState extends State<ScreenPassword> {
+  /// @brief Controlador para el campo de correo electrónico.
   final TextEditingController comprobacionCorreo = TextEditingController();
 
+  /// @brief Construye el widget principal de la pantalla.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de recuperación de contraseña.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,11 +33,9 @@ class ScreenPasswordState extends State<ScreenPassword> {
       appBar: configuracionAppBar(context),
       bottomNavigationBar: const FooterBar(), // Pie de página
       body: Stack(
-        // Stack es un Contenedor que permite colocar varios widgets en la pantalla y que los widgets se superpongan unos de otros.
         children: [
-          imagenDeFondo(), // Metodo de configuracion de la imagen de fondo
+          imagenDeFondo(),
           SafeArea(
-            // SafeArea asegura que el contenido no se superponga a la barra de estado y la barra de navegación
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: contenidoPagina(context),
@@ -35,11 +46,13 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // AppBar transparente con botón de retroceso. Permite que el appBar sea transparente y que el contenido de la pantalla se vea detrás de ella.
+  /// @brief Configura el AppBar transparente con botón de retroceso.
+  /// @param context Contexto de la aplicación.
+  /// @return AppBar personalizado.
   AppBar configuracionAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent, // AppBar transparente
-      elevation: 0, // Elimina la sombra del AppBar
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () => Navigator.pop(context),
@@ -47,21 +60,22 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // Imagen de fondo ocupando toda la pantalla
+  /// @brief Devuelve la imagen de fondo ocupando toda la pantalla.
+  /// @return Widget con la imagen de fondo.
   Widget imagenDeFondo() {
     return SizedBox.expand(
       child: Image.asset('assets/images/2.png', fit: BoxFit.cover),
     );
   }
 
-  // Contenido del formulario de recuperación
+  /// @brief Construye el contenido principal del formulario de recuperación.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget con el contenido de la página.
   Widget contenidoPagina(BuildContext context) {
-    // Column principal centrada verticalmente con espacio alrededor
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: 10),
-        // Título principal de la pantalla
         const Text(
           'Recuperar Contraseña',
           style: TextStyle(
@@ -71,7 +85,7 @@ class ScreenPasswordState extends State<ScreenPassword> {
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 40), // Espacio entre título y textos
+        const SizedBox(height: 40),
         textoBienvenida1(),
         const SizedBox(height: 10),
         textoBienvenida2(),
@@ -85,7 +99,8 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // Texto de bienvenida1
+  /// @brief Texto de bienvenida principal.
+  /// @return Widget con el texto de bienvenida.
   Widget textoBienvenida1() {
     return const Align(
       alignment: Alignment.centerLeft,
@@ -101,7 +116,8 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // Texto de bienvenida2
+  /// @brief Texto de bienvenida secundario.
+  /// @return Widget con el texto de ayuda.
   Widget textoBienvenida2() {
     return const Align(
       alignment: Alignment.centerLeft,
@@ -113,7 +129,8 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // Texto Correo electrónico
+  /// @brief Muestra el texto "Correo" sobre el campo de entrada.
+  /// @return Widget con el texto "Correo".
   Widget palabraCorreo() {
     return Container(
       alignment: Alignment.centerLeft,
@@ -128,7 +145,8 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // Campo de texto para el correo electrónico (estilo Register)
+  /// @brief Campo de texto para el correo electrónico.
+  /// @return Widget con el campo de correo.
   Widget campoCorreo() {
     return Container(
       decoration: BoxDecoration(
@@ -173,7 +191,9 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  // Botón para enviar el correo (estilo Register)
+  /// @brief Botón para enviar el correo de recuperación.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget con el botón de envío.
   Widget botonEnviar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -203,26 +223,26 @@ class ScreenPasswordState extends State<ScreenPassword> {
     );
   }
 
-  //Funcionalidad del botón para enviar el correo
+  /// @brief Envía el correo de recuperación de contraseña.
+  /// @param context Contexto de la aplicación.
+  /// @return void
   void funcionalidadEnvio(BuildContext context) async {
     final correo = comprobacionCorreo.text.trim().toLowerCase();
-    ;
     if (correo.isEmpty) {
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Campo vacío'),
-              content: const Text(
-                'Por favor, introduce tu correo electrónico.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Aceptar'),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: const Text('Campo vacío'),
+          content: const Text(
+            'Por favor, introduce tu correo electrónico.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Aceptar'),
             ),
+          ],
+        ),
       );
       return;
     }
@@ -231,19 +251,18 @@ class ScreenPasswordState extends State<ScreenPassword> {
     if (!regex.hasMatch(correo)) {
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Correo no válido'),
-              content: const Text(
-                'Introduce un correo electrónico válido, por favor.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Aceptar'),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: const Text('Correo no válido'),
+          content: const Text(
+            'Introduce un correo electrónico válido, por favor.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Aceptar'),
             ),
+          ],
+        ),
       );
       return;
     }
@@ -253,39 +272,37 @@ class ScreenPasswordState extends State<ScreenPassword> {
       // Diálogo de éxito
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Correo enviado'),
-              content: const Text(
-                'Hemos enviado un correo para restablecer tu contraseña. Revisa tu bandeja de entrada.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Aceptar'),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: const Text('Correo enviado'),
+          content: const Text(
+            'Hemos enviado un correo para restablecer tu contraseña. Revisa tu bandeja de entrada.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('Aceptar'),
             ),
+          ],
+        ),
       );
     } catch (e) {
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Error'),
-              content: Text(
-                'Ocurrió un error al enviar el correo: ${e.toString()}',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Aceptar'),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text(
+            'Ocurrió un error al enviar el correo: ${e.toString()}',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Aceptar'),
             ),
+          ],
+        ),
       );
     }
   }

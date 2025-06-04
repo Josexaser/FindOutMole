@@ -2,14 +2,25 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:findoutmole/screen/login_screen/login_screen.dart';
 
+/// @class WelcomeScreen
+/// @brief Pantalla de bienvenida con advertencias e información.
+/// 
+/// Muestra mensajes importantes y redirige automáticamente a la pantalla de login.
 class WelcomeScreen extends StatefulWidget {
+  /// @brief Constructor de la pantalla de bienvenida.
+  /// @param key Clave opcional para el widget.
   const WelcomeScreen({super.key});
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _WelcomeScreenState.
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
+/// @class _WelcomeScreenState
+/// @brief Estado de la pantalla WelcomeScreen para manejar la lógica de navegación.
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  /// @brief Inicializa el estado y navega a login tras 6 segundos.
   @override
   void initState() {
     super.initState();
@@ -22,6 +33,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
   }
 
+  /// @brief Construye el widget principal de la pantalla de bienvenida.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de bienvenida.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

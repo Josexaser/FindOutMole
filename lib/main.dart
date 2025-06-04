@@ -10,13 +10,23 @@ void main() async {
   runApp(const MainApp());
 }
 
+/// @class MainApp
+/// @brief Widget principal de la aplicación.
+/// 
+/// Inicializa la app y muestra la pantalla de bienvenida.
 class MainApp extends StatelessWidget {
+  /// @brief Constructor del widget MainApp.
+  /// @param key Clave opcional para el widget.
   const MainApp({super.key});
 
+  /// @brief Construye el widget principal de la aplicación.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la app.
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(body: Center(child: WelcomeScreen())),
+      debugShowCheckedModeBanner: false,
+      home: WelcomeScreen(),
     );
   }
 }

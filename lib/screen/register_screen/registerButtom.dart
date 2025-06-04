@@ -2,17 +2,31 @@ import 'package:findoutmole/screen/login_screen/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+/// @class RegisterButton
+/// @brief Botón para registrar un nuevo usuario.
+/// 
+/// Valida los campos, muestra mensajes de error y registra el usuario en Firebase.
 class RegisterButton extends StatefulWidget {
+  /// @brief Controlador para el correo electrónico.
   final TextEditingController emailController;
+  /// @brief Controlador para la contraseña.
   final TextEditingController passwordController;
-  final TextEditingController confirmPasswordController; // Controlador para la confirmación de contraseña
+  /// @brief Controlador para la confirmación de contraseña.
+  final TextEditingController confirmPasswordController;
+  /// @brief Indica si el botón está habilitado (términos aceptados).
   final bool enabled;
 
+  /// @brief Constructor del botón de registro.
+  /// @param key Clave opcional para el widget.
+  /// @param emailController Controlador para el correo electrónico.
+  /// @param passwordController Controlador para la contraseña.
+  /// @param confirmPasswordController Controlador para la confirmación de contraseña.
+  /// @param enabled Indica si el botón está habilitado.
   const RegisterButton({
     super.key,
     required this.emailController,
     required this.passwordController,
-    required this.confirmPasswordController, // Añadido
+    required this.confirmPasswordController,
     required this.enabled,
   });
 
@@ -20,6 +34,8 @@ class RegisterButton extends StatefulWidget {
   State<RegisterButton> createState() => _RegisterButtonState();
 }
 
+/// @class _RegisterButtonState
+/// @brief Estado del botón de registro para manejar la lógica de validación y registro.
 class _RegisterButtonState extends State<RegisterButton> {
   @override
   Widget build(BuildContext context) {
@@ -60,10 +76,10 @@ class _RegisterButtonState extends State<RegisterButton> {
 
             // Validación de requisitos de contraseña
             final RegExp regex = RegExp(
-              r'^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$&*~]).{6,}$',
+              r'^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$&*~]).{8,}$',
             );
 
-            if (password.length < 8 || !regex.hasMatch(password)) {
+            if (!regex.hasMatch(password)) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial'),
@@ -119,7 +135,7 @@ class _RegisterButtonState extends State<RegisterButton> {
           child: const Text(
             'Registrar',
             style: TextStyle(
-              color: Colors.white, // Color del texto del botón
+              color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),

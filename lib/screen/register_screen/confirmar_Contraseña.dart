@@ -1,24 +1,39 @@
 import 'package:flutter/material.dart';
 
+/// @class ConfirmPasswordField
+/// @brief Campo de texto para confirmar la contraseña con validación visual.
+/// 
+/// Muestra un campo de confirmación de contraseña y valida que coincida con la contraseña principal.
 class ConfirmPasswordField extends StatefulWidget {
-  final TextEditingController controller; // Controlador para la confirmación de contraseña
-  final TextEditingController passwordController; // Controlador para la contraseña principal
+  /// @brief Controlador para la confirmación de contraseña.
+  final TextEditingController controller;
+  /// @brief Controlador para la contraseña principal.
+  final TextEditingController passwordController;
 
+  /// @brief Constructor del campo de confirmación de contraseña.
+  /// @param controller Controlador para la confirmación.
+  /// @param passwordController Controlador para la contraseña principal.
+  /// @param key Clave opcional para el widget.
   const ConfirmPasswordField({
     super.key,
     required this.controller,
     required this.passwordController,
   });
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _ConfirmPasswordFieldState.
   @override
   _ConfirmPasswordFieldState createState() => _ConfirmPasswordFieldState();
 }
 
+/// @class _ConfirmPasswordFieldState
+/// @brief Estado del campo de confirmación de contraseña para manejar la lógica de validación.
 class _ConfirmPasswordFieldState extends State<ConfirmPasswordField> {
   bool _isObscured = true;
   String? _errorText;
 
-  // Validación visual de la confirmación de contraseña
+  /// @brief Valida que la confirmación de contraseña no esté vacía y coincida.
+  /// @param value Valor ingresado en el campo de confirmación.
   void _validateConfirmPassword(String value) {
     setState(() {
       if (value.isEmpty) {
@@ -31,6 +46,9 @@ class _ConfirmPasswordFieldState extends State<ConfirmPasswordField> {
     });
   }
 
+  /// @brief Construye el widget del campo de confirmación de contraseña.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget con el campo de texto y validación.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -56,7 +74,7 @@ class _ConfirmPasswordFieldState extends State<ConfirmPasswordField> {
             ],
           ),
           child: TextField(
-            controller: widget.controller, // Controlador para la confirmación
+            controller: widget.controller,
             obscureText: _isObscured,
             decoration: InputDecoration(
               labelText: 'Confirmar Contraseña',
@@ -84,7 +102,7 @@ class _ConfirmPasswordFieldState extends State<ConfirmPasswordField> {
                 vertical: 16.0,
                 horizontal: 10.0,
               ),
-              errorText: _errorText, // Muestra el error directamente en el campo
+              errorText: _errorText,
             ),
             style: const TextStyle(color: Colors.black, fontSize: 16.0),
             onChanged: _validateConfirmPassword,

@@ -7,25 +7,44 @@ import 'package:findoutmole/services/api_service.dart';
 import 'package:findoutmole/models/prediction.dart';
 import 'package:findoutmole/screen/FootBar.dart';
 
+/// @class ConsultasScreen
+/// @brief Pantalla que muestra el historial de diagnósticos del usuario.
+/// 
+/// Permite visualizar, eliminar y guardar diagnósticos en carpetas.
 class ConsultasScreen extends StatefulWidget {
+  /// @brief Token de autenticación del usuario.
   final String token;
+
+  /// @brief Constructor de la pantalla de consultas.
+  /// @param token Token de autenticación.
+  /// @param key Clave opcional para el widget.
   const ConsultasScreen({required this.token, super.key});
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _ConsultasScreenState.
   @override
   State<ConsultasScreen> createState() => _ConsultasScreenState();
 }
 
+/// @class _ConsultasScreenState
+/// @brief Estado de la pantalla ConsultasScreen para manejar la lógica de diagnósticos.
 class _ConsultasScreenState extends State<ConsultasScreen> {
+  /// @brief Lista de diagnósticos obtenidos.
   List<Prediction> _diagnostics = [];
+  /// @brief Indica si se están cargando los diagnósticos.
   bool _isLoading = true;
+  /// @brief Mensaje de error si ocurre algún problema al cargar los diagnósticos.
   String? _errorMessage;
 
+  /// @brief Inicializa el estado y carga los diagnósticos.
   @override
   void initState() {
     super.initState();
     _fetchDiagnostics();
   }
 
+  /// @brief Obtiene los diagnósticos del usuario desde la API.
+  /// @return void
   Future<void> _fetchDiagnostics() async {
     setState(() {
       _isLoading = true;
@@ -46,6 +65,9 @@ class _ConsultasScreenState extends State<ConsultasScreen> {
     }
   }
 
+  /// @brief Elimina un diagnóstico seleccionado.
+  /// @param diagnosticId Identificador del diagnóstico a eliminar.
+  /// @return void
   Future<void> _deleteDiagnostic(String diagnosticId) async {
     try {
       await ApiService().deleteDiagnostic(diagnosticId, widget.token);
@@ -62,6 +84,9 @@ class _ConsultasScreenState extends State<ConsultasScreen> {
     }
   }
 
+  /// @brief Abre la pantalla de carpetas para guardar una imagen.
+  /// @param context Contexto de la aplicación.
+  /// @param imagePath Ruta de la imagen a guardar.
   void _openCarpetasScreen(BuildContext context, String imagePath) {
     Navigator.push(
       context,
@@ -71,6 +96,8 @@ class _ConsultasScreenState extends State<ConsultasScreen> {
     );
   }
 
+  /// @brief Muestra un diálogo de confirmación para eliminar un diagnóstico.
+  /// @param diagnosticId Identificador del diagnóstico a eliminar.
   void _confirmDeleteDiagnostic(String diagnosticId) {
     showDialog(
       context: context,
@@ -98,6 +125,9 @@ class _ConsultasScreenState extends State<ConsultasScreen> {
     );
   }
 
+  /// @brief Construye la tarjeta visual para cada diagnóstico.
+  /// @param diagnostic Objeto Prediction con los datos del diagnóstico.
+  /// @return Widget Card con la información del diagnóstico.
   Widget _buildDiagnosticCard(Prediction diagnostic) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -196,6 +226,9 @@ class _ConsultasScreenState extends State<ConsultasScreen> {
     );
   }
 
+  /// @brief Construye el widget principal de la pantalla de consultas.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de historial de diagnósticos.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

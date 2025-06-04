@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 
+/// @class FindOutText
+/// @brief Widget que muestra el texto estilizado "Find Out" en la pantalla de login.
+/// 
+/// Este widget aplica un padding superior y lateral, y define el estilo visual del texto principal.
 class FindOutText extends StatelessWidget {
+  /// @brief Constructor del widget FindOutText.
+  /// @param key Clave opcional para el widget.
   const FindOutText({super.key});
 
+  /// @brief Construye el widget de texto "Find Out".
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa el texto estilizado.
   @override
   Widget build(BuildContext context) {
     return Padding(

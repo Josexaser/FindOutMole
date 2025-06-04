@@ -4,13 +4,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:findoutmole/screen/FootBar.dart'; // Importa el pie de página
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+/// @class PerfilPage
+/// @brief Pantalla de perfil médico del usuario.
+/// 
+/// Permite visualizar y editar los datos personales del usuario, como nombre, apellidos, correo, edad, peso y altura.
 class PerfilPage extends StatefulWidget {
+  /// @brief Constructor de la pantalla de perfil.
+  /// @param key Clave opcional para el widget.
   const PerfilPage({super.key});
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _PerfilPageState.
   @override
   _PerfilPageState createState() => _PerfilPageState();
 }
 
+/// @class _PerfilPageState
+/// @brief Estado de la pantalla PerfilPage para manejar la lógica de edición y visualización de datos.
 class _PerfilPageState extends State<PerfilPage> {
   // Controladores para los campos de texto
   late TextEditingController _nombreController;
@@ -23,24 +33,22 @@ class _PerfilPageState extends State<PerfilPage> {
   // Variable para controlar el estado de edición
   bool _isEditing = false;
 
+  /// @brief Inicializa los controladores y carga los datos del usuario.
   @override
   void initState() {
     super.initState();
-    // Inicializa los controladores de texto
     _nombreController = TextEditingController();
     _apellidosController = TextEditingController();
     _emailController = TextEditingController();
     _edadController = TextEditingController();
     _pesoController = TextEditingController();
     _alturaController = TextEditingController();
-
-    // Cargar datos del usuario al iniciar
     _loadUserData();
   }
 
+  /// @brief Libera los recursos utilizados por los controladores de texto.
   @override
   void dispose() {
-    // Libera los recursos utilizados por los controladores de texto
     _nombreController.dispose();
     _apellidosController.dispose();
     _emailController.dispose();
@@ -50,28 +58,22 @@ class _PerfilPageState extends State<PerfilPage> {
     super.dispose();
   }
 
-  // Método para cargar los datos del usuario desde Firebase
+  /// @brief Carga los datos del usuario desde Firebase.
+  /// @return void
   Future<void> _loadUserData() async {
     try {
-      final user =
-          FirebaseAuth.instance.currentUser; // Obtiene el usuario autenticado
+      final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Asignar el correo electrónico directamente desde FirebaseAuth
         setState(() {
           _emailController.text = user.email ?? 'Correo no definido';
         });
-
-        // Obtener otros datos del usuario desde Firestore
-        final doc =
-            await FirebaseFirestore.instance
-                .collection('users') // Colección en Firestore
-                .doc(user.uid) // Documento basado en el UID del usuario
-                .get();
-
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
         if (doc.exists) {
           final data = doc.data()!;
           setState(() {
-            // Asigna los datos obtenidos a los controladores
             _nombreController.text = data['nombre'] ?? '';
             _apellidosController.text = data['apellidos'] ?? '';
             _edadController.text = data['edad'] ?? '';
@@ -81,20 +83,18 @@ class _PerfilPageState extends State<PerfilPage> {
         }
       }
     } catch (e) {
-      // Muestra un mensaje de error si ocurre algún problema
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al cargar datos: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar datos: $e')),
+      );
     }
   }
 
-  // Método para guardar los datos del usuario en Firestore
+  /// @brief Guarda los datos del usuario en Firestore.
+  /// @return void
   Future<void> _saveUserData() async {
     try {
-      final user =
-          FirebaseAuth.instance.currentUser; // Obtiene el usuario autenticado
+      final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Guarda los datos en la colección 'Perfil' en Firestore
         await FirebaseFirestore.instance
             .collection('Perfil')
             .doc(user.uid)
@@ -106,19 +106,20 @@ class _PerfilPageState extends State<PerfilPage> {
               'peso': _pesoController.text,
               'altura': _alturaController.text,
             });
-        // Muestra un mensaje de éxito
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Datos guardados correctamente')),
         );
       }
     } catch (e) {
-      // Muestra un mensaje de error si ocurre algún problema
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al guardar datos: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al guardar datos: $e')),
+      );
     }
   }
 
+  /// @brief Construye el widget principal de la pantalla de perfil.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de perfil médico.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,7 +128,7 @@ class _PerfilPageState extends State<PerfilPage> {
           // Imagen de fondo
           Positioned.fill(
             child: Image.asset(
-              'assets/images/2.png', // Ruta de la imagen
+              'assets/images/2.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -143,9 +144,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       IconButton(
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          Navigator.pop(
-                            context,
-                          ); // Regresar a la pantalla anterior
+                          Navigator.pop(context);
                         },
                       ),
                       const Spacer(),
@@ -169,7 +168,6 @@ class _PerfilPageState extends State<PerfilPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Campos de texto para los datos del usuario
                       _buildTextField(
                         label: 'Nombre',
                         hintText: 'Nombre no definido',
@@ -189,7 +187,7 @@ class _PerfilPageState extends State<PerfilPage> {
                         hintText: 'Correo no definido',
                         icon: Icons.email,
                         controller: _emailController,
-                        readOnly: true, // Campo de solo lectura
+                        readOnly: true,
                       ),
                       const SizedBox(height: 16),
                       _buildTextField(
@@ -218,23 +216,21 @@ class _PerfilPageState extends State<PerfilPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
-                            onPressed:
-                                _isEditing
-                                    ? () async {
-                                      await _saveUserData();
-                                      setState(() {
-                                        _isEditing =
-                                            false; // Deshabilitar edición
-                                      });
-                                    }
-                                    : null,
+                            onPressed: _isEditing
+                                ? () async {
+                                    await _saveUserData();
+                                    setState(() {
+                                      _isEditing = false;
+                                    });
+                                  }
+                                : null,
                             child: const Text('Guardar Cambios'),
                           ),
                           const SizedBox(width: 16),
                           ElevatedButton(
                             onPressed: () {
                               setState(() {
-                                _isEditing = true; // Habilitar edición
+                                _isEditing = true;
                               });
                             },
                             child: const Text('Editar'),
@@ -246,7 +242,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 ),
               ),
               // Pie de página
-              const FooterBar(), // Asegúrate de que FootBar esté implementado correctamente
+              const FooterBar(),
             ],
           ),
         ],
@@ -254,8 +250,13 @@ class _PerfilPageState extends State<PerfilPage> {
     );
   }
 
-  // Método para construir un campo de texto
-
+  /// @brief Construye un campo de texto personalizado.
+  /// @param label Etiqueta del campo.
+  /// @param hintText Texto de sugerencia.
+  /// @param icon Icono a mostrar.
+  /// @param controller Controlador del campo.
+  /// @param readOnly Indica si el campo es de solo lectura.
+  /// @return Widget con el campo de texto.
   Widget _buildTextField({
     required String label,
     required String hintText,
@@ -264,7 +265,7 @@ class _PerfilPageState extends State<PerfilPage> {
     bool readOnly = false,
   }) {
     return SizedBox(
-      width: kIsWeb ? 700 : 350, // más ancho en web
+      width: kIsWeb ? 700 : 350,
       child: TextFormField(
         controller: controller,
         enabled: _isEditing && !readOnly,

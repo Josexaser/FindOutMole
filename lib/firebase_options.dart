@@ -4,17 +4,13 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
+/// @class DefaultFirebaseOptions
+/// @brief Opciones de configuración de Firebase para cada plataforma.
+/// 
+/// Proporciona las credenciales necesarias para inicializar Firebase en web, Android, iOS, macOS y Windows.
 class DefaultFirebaseOptions {
+  /// @brief Obtiene las opciones de Firebase según la plataforma actual.
+  /// @return [FirebaseOptions] para la plataforma correspondiente.
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -40,6 +36,7 @@ class DefaultFirebaseOptions {
     }
   }
 
+  /// @brief Opciones de Firebase para Web.
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBFbBXjRcHijo-skipK0ysdDztvCb5P9oU',
     appId: '1:1090878587702:web:fcad7b643c7d784d84a997',
@@ -49,6 +46,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'findoutmole.firebasestorage.app',
   );
 
+  /// @brief Opciones de Firebase para Android.
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD73lY0wv82ulErAw8nVbaRFE8Th1LigRs',
     appId: '1:1090878587702:android:812a753afc27384784a997',
@@ -57,6 +55,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'findoutmole.firebasestorage.app',
   );
 
+  /// @brief Opciones de Firebase para macOS.
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA5uLuQ7p2gRNw-cO35fu0QQJjRd3LfQJo',
     appId: '1:1090878587702:ios:1d90ba99fb9d220584a997',
@@ -66,6 +65,7 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.proyectofindoutmole',
   );
 
+  /// @brief Opciones de Firebase para Windows.
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyBFbBXjRcHijo-skipK0ysdDztvCb5P9oU',
     appId: '1:1090878587702:web:6ad70511ebaaf66e84a997',
@@ -75,6 +75,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'findoutmole.firebasestorage.app',
   );
 
+  /// @brief Opciones de Firebase para iOS.
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA5uLuQ7p2gRNw-cO35fu0QQJjRd3LfQJo',
     appId: '1:1090878587702:ios:1d90ba99fb9d220584a997',

@@ -8,19 +8,32 @@ import 'package:findoutmole/screen/register_screen/registerButtom.dart';
 import 'package:findoutmole/screen/register_screen/textoInicial.dart';
 import 'package:findoutmole/screen/FootBar.dart';
 
+/// @class RegisterPage
+/// @brief Pantalla de registro de usuario.
+/// 
+/// Permite al usuario crear una cuenta ingresando correo, contraseña, confirmación y aceptando condiciones.
 class RegisterPage extends StatefulWidget {
+  /// @brief Constructor del widget RegisterPage.
+  /// @param key Clave opcional para el widget.
   const RegisterPage({super.key});
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _RegisterPageState.
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
+/// @class _RegisterPageState
+/// @brief Estado de la pantalla de registro para manejar la lógica de validación y envío.
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController passController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController confirmPassController = TextEditingController();
   bool aceptoCondiciones = false;
 
+  /// @brief Construye el widget principal de la pantalla de registro.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de registro.
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -84,6 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  /// @brief Libera los recursos de los controladores de texto.
   @override
   void dispose() {
     passController.dispose();

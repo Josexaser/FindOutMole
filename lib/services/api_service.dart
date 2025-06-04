@@ -7,6 +7,10 @@ import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart' as path;
 import '../models/prediction.dart';
 
+/// @class ApiService
+/// @brief Servicio para interactuar con la API backend de FindOutMole.
+/// 
+/// Permite realizar predicciones, obtener diagnósticos y eliminar diagnósticos.
 class ApiService {
   // Modo LOCAL: para desarrollo en emulador Android o navegador Web
   static const String baseUrl =
@@ -17,6 +21,10 @@ class ApiService {
   // Modo PRODUCCIÓN: para cuando uses Vercel + Render
   // static const String baseUrl = 'https://findoutmole-backend.onrender.com';
 
+  /// @brief Envía una imagen para obtener una predicción.
+  /// @param imageData Archivo o bytes de la imagen.
+  /// @param token Token de autenticación.
+  /// @return Objeto Prediction con el resultado.
   Future<Prediction> predict(dynamic imageData, String token) async {
     try {
       if (imageData == null) {
@@ -78,6 +86,9 @@ class ApiService {
     }
   }
 
+  /// @brief Obtiene la lista de diagnósticos del usuario.
+  /// @param token Token de autenticación.
+  /// @return Lista de objetos Prediction.
   Future<List<Prediction>> getDiagnostics(String token) async {
     try {
       final response = await http.get(
@@ -99,6 +110,10 @@ class ApiService {
     }
   }
 
+  /// @brief Elimina un diagnóstico por su ID.
+  /// @param id Identificador del diagnóstico.
+  /// @param token Token de autenticación.
+  /// @return void
   Future<void> deleteDiagnostic(String id, String token) async {
     try {
       final response = await http.delete(
@@ -115,6 +130,9 @@ class ApiService {
     }
   }
 
+  /// @brief Obtiene el tipo MIME de una imagen según su extensión.
+  /// @param extension Extensión del archivo.
+  /// @return String con el tipo MIME.
   String _getMimeType(String extension) {
     switch (extension) {
       case '.jpg':

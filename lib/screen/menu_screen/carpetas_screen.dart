@@ -2,33 +2,44 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
+/// @class CarpetasScreen
+/// @brief Pantalla para seleccionar una carpeta y guardar una imagen.
+/// 
+/// Permite al usuario ver, seleccionar y eliminar carpetas donde puede guardar una imagen.
 class CarpetasScreen extends StatefulWidget {
-  final String imagePath; // Ruta de la imagen que se desea guardar
+  /// @brief Ruta de la imagen que se desea guardar.
+  final String imagePath;
 
+  /// @brief Constructor de la pantalla de carpetas.
+  /// @param imagePath Ruta de la imagen a guardar.
+  /// @param key Clave opcional para el widget.
   const CarpetasScreen({required this.imagePath, super.key});
 
+  /// @brief Crea el estado asociado a este widget.
+  /// @return Instancia de _CarpetasScreenState.
   @override
   _CarpetasScreenState createState() => _CarpetasScreenState();
 }
 
+/// @class _CarpetasScreenState
+/// @brief Estado de la pantalla CarpetasScreen para manejar la lógica de carpetas.
 class _CarpetasScreenState extends State<CarpetasScreen> {
-  List<String> _folders = []; // Lista de carpetas
+  /// @brief Lista de carpetas encontradas.
+  List<String> _folders = [];
 
+  /// @brief Inicializa el estado y carga las carpetas existentes.
   @override
   void initState() {
     super.initState();
-    _loadFolders(); // Cargar las carpetas existentes al iniciar
+    _loadFolders();
   }
 
+  /// @brief Carga las carpetas existentes en el directorio de documentos.
+  /// @return void
   Future<void> _loadFolders() async {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final folderPath = directory.path;
-      print('Directorio de documentos: $folderPath'); // Corregido
-
-      // Crear carpetas de prueba (descomentar para probar)
-      // Directory('$folderPath/Test1').createSync();
-      // Directory('$folderPath/Test2').createSync();
 
       final folderDirectory = Directory(folderPath);
       final folders =
@@ -38,21 +49,19 @@ class _CarpetasScreenState extends State<CarpetasScreen> {
               .map((entity) => entity.path.split(Platform.pathSeparator).last)
               .toList();
 
-      print(
-        'Carpetas encontradas: $folders',
-      ); // Depuración para verificar carpetas
-
       setState(() {
         _folders = folders;
       });
     } catch (e) {
-      print('Error al cargar carpetas: $e'); // Depuración
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error al cargar carpetas: $e')));
     }
   }
 
+  /// @brief Elimina una carpeta seleccionada.
+  /// @param folderName Nombre de la carpeta a eliminar.
+  /// @return void
   Future<void> _deleteFolder(String folderName) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -62,7 +71,7 @@ class _CarpetasScreenState extends State<CarpetasScreen> {
       if (folder.existsSync()) {
         folder.deleteSync(recursive: true);
         setState(() {
-          _folders.remove(folderName); // Eliminar la carpeta de la lista
+          _folders.remove(folderName);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Carpeta "$folderName" eliminada')),
@@ -79,6 +88,9 @@ class _CarpetasScreenState extends State<CarpetasScreen> {
     }
   }
 
+  /// @brief Guarda la imagen en la carpeta seleccionada.
+  /// @param folderName Nombre de la carpeta donde se guardará la imagen.
+  /// @return void
   Future<void> _saveImageToFolder(String folderName) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -97,7 +109,7 @@ class _CarpetasScreenState extends State<CarpetasScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text('Imagen guardada en $folderName')));
 
-      Navigator.pop(context); // Regresa a la pantalla anterior
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -105,6 +117,8 @@ class _CarpetasScreenState extends State<CarpetasScreen> {
     }
   }
 
+  /// @brief Muestra un diálogo de confirmación para eliminar una carpeta.
+  /// @param folderName Nombre de la carpeta a eliminar.
   void _confirmDeleteFolder(String folderName) {
     showDialog(
       context: context,
@@ -134,6 +148,9 @@ class _CarpetasScreenState extends State<CarpetasScreen> {
     );
   }
 
+  /// @brief Construye el widget principal de la pantalla.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la pantalla de selección de carpetas.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,90 +166,85 @@ class _CarpetasScreenState extends State<CarpetasScreen> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child:
-                  _folders.isEmpty
-                      ? const Center(child: Text('No se encontraron carpetas'))
-                      : GridView.builder(
-                        clipBehavior: Clip.none,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                            ),
-                        itemCount: _folders.length,
-                        itemBuilder: (context, index) {
-                          final folder = _folders[index];
-                          return Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              InkWell(
-                                onTap: () => _saveImageToFolder(folder),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.yellow.withOpacity(
-                                      0.5,
-                                    ), // Fondo para depuración
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.blueAccent,
-                                      width: 1,
-                                    ),
+              child: _folders.isEmpty
+                  ? const Center(child: Text('No se encontraron carpetas'))
+                  : GridView.builder(
+                      clipBehavior: Clip.none,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: _folders.length,
+                      itemBuilder: (context, index) {
+                        final folder = _folders[index];
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            InkWell(
+                              onTap: () => _saveImageToFolder(folder),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.yellow.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.blueAccent,
+                                    width: 1,
                                   ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.folder,
-                                        size: 50,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.folder,
+                                      size: 50,
+                                      color: Colors.blueAccent,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      folder,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
                                         color: Colors.blueAccent,
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        folder,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blueAccent,
-                                        ),
-                                        textAlign: TextAlign.center,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () => _confirmDeleteFolder(folder),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black,
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ),
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () => _confirmDeleteFolder(folder),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: const BoxDecoration(
-                                      color:
-                                          Colors
-                                              .red, // Fondo rojo para depuración
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black,
-                                          blurRadius: 4,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                    size: 24,
                                   ),
                                 ),
                               ),
-                            ],
-                          );
-                        },
-                      ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
             ),
           ],
         ),

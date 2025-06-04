@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 
+/// @class FooterBar
+/// @brief Barra de pie de página reutilizable para la aplicación.
+/// 
+/// Muestra un texto de derechos reservados en la parte inferior de la pantalla.
 class FooterBar extends StatelessWidget {
+  /// @brief Constructor de la barra de pie de página.
+  /// @param key Clave opcional para el widget.
   const FooterBar({super.key});
 
+  /// @brief Construye el widget de la barra de pie de página.
+  /// @param context Contexto de la aplicación.
+  /// @return Widget que representa la barra de pie de página.
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -21,7 +30,7 @@ class FooterBar extends StatelessWidget {
             child: Text(
               '© 2025 FindOutMole. Todos los derechos reservados.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
           ),
         ),
